@@ -1,0 +1,71 @@
+{
+  "home": {
+    "title": "Votre Partenaire de Confiance en Chaussures",
+    "subtitle": "Découvrez notre sélection de chaussures haut de gamme. Nous offrons les meilleures options en gros pour répondre aux attentes de vos clients.",
+    "collections": "Collections",
+    "noCollections": "Aucune collection disponible pour le moment.",
+    "products": "Produits"
+  },
+  "nav": {
+    "home": "Accueil",
+    "collections": "Collections"
+  },
+  "catalog": {
+    "viewAll": "Voir tout",
+    "noProducts": "Aucun produit dans ce catalogue pour le moment."
+  },
+  "family": {
+    "in": "dans",
+    "noProducts": "Aucun produit disponible dans cette catégorie pour ce catalogue."
+  },
+  "product": {
+    "description": "Description",
+    "inquire": "Renseignez-vous sur cette pièce"
+  },
+  "admin": {
+    "dashboard": "Tableau de Bord",
+    "storeSettings": "Paramètres du Magasin",
+    "promoMessage": "Message Promo (Bannière)",
+    "phoneNumber": "Numéro de Téléphone",
+    "email": "Email",
+    "address": "Adresse",
+    "saveSettings": "Enregistrer",
+    "createCatalog": "Créer un Catalogue",
+    "name": "Nom",
+    "createFamily": "Créer une Famille",
+    "addNewProduct": "Ajouter un Nouveau Produit",
+    "catalogs": "Catalogues (Sélection multiple)",
+    "familyCategory": "Famille (Catégorie)",
+    "reference": "Référence (SKU)",
+    "details": "Détails (Optionnel, Court)",
+    "descriptionLong": "Description (Optionnel, Long)",
+    "images": "Images (La première sera l'image principale)",
+    "saveProduct": "Enregistrer le Produit",
+    "uploading": "Téléchargement...",
+    "noCatalogs": "Aucun catalogue disponible",
+    "viewLiveSite": "Voir le site en direct ↗",
+    "productsList": "Produits",
+    "catalogsList": "Catalogues",
+    "familiesList": "Familles",
+    "quickStats": "Statistiques Rapides",
+    "totalProducts": "Total des Produits",
+    "activeProducts": "Produits Actifs",
+    "totalCatalogs": "Total des Catalogues",
+    "totalFamilies": "Total des Familles",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "cancel": "Annuler",
+    "update": "Mettre à jour",
+    "actions": "Actions",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "editProduct": "Modifier le Produit",
+    "status": "Statut",
+    "password": "Mot de passe",
+    "enterPassword": "Entrez le mot de passe administrateur",
+    "invalidPassword": "Mot de passe invalide",
+    "somethingWentWrong": "Quelque chose s'est mal passé",
+    "signingIn": "Connexion en cours...",
+    "signIn": "Se Connecter"
+  }
+}

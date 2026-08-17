@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Catalog {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  description String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products    Product[]
+}
+
+model Family {
+  id          String   @id @default(uuid())
+  name        String
+  arabicName  String?
+  slug        String   @unique
+  description String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products    Product[]
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  familyId    String
+  reference   String   @unique
+  details     String?
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  family      Family         @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  catalogs    Catalog[]
+  images      ProductImage[]
+}
+
+model ProductImage {
+  id           String   @id @default(uuid())
+  productId    String
+  originalUrl  String
+  thumbnailUrl String
+  mediumUrl    String
+  fullUrl      String
+  isPrimary    Boolean  @default(false)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model StoreSettings {
+  id           String   @id @default("default")
+  phoneNumber  String?
+  email        String?
+  address      String?
+  promoMessage String?
+  updatedAt    DateTime @updatedAt
+}

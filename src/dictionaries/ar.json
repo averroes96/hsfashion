@@ -1,0 +1,71 @@
+{
+  "home": {
+    "title": "شريكك الموثوق في تجارة الأحذية",
+    "subtitle": "اكتشف تشكيلتنا الحصرية من الأحذية الراقية. نوفر أفضل الخيارات بأسعار الجملة لتلبية احتياجات تجارتك وعملائك.",
+    "collections": "التشكيلات",
+    "noCollections": "لا توجد تشكيلات متاحة بعد.",
+    "products": "منتجات"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "collections": "التشكيلات"
+  },
+  "catalog": {
+    "viewAll": "عرض الكل",
+    "noProducts": "لا توجد منتجات في هذا الكتالوج بعد."
+  },
+  "family": {
+    "in": "في",
+    "noProducts": "لا توجد منتجات متاحة في هذه الفئة لهذا الكتالوج."
+  },
+  "product": {
+    "description": "الوصف",
+    "inquire": "استفسر عن هذه القطعة"
+  },
+  "admin": {
+    "dashboard": "لوحة القيادة",
+    "storeSettings": "إعدادات المتجر",
+    "promoMessage": "رسالة ترويجية (لافتة)",
+    "phoneNumber": "رقم الهاتف",
+    "email": "البريد الإلكتروني",
+    "address": "العنوان",
+    "saveSettings": "حفظ الإعدادات",
+    "createCatalog": "إنشاء كتالوج",
+    "name": "الاسم",
+    "createFamily": "إنشاء فئة",
+    "addNewProduct": "إضافة منتج جديد",
+    "catalogs": "الكتالوجات (اختر أكثر من واحد)",
+    "familyCategory": "الفئة",
+    "reference": "المرجع (SKU)",
+    "details": "التفاصيل (اختياري، قصير)",
+    "descriptionLong": "الوصف (اختياري، طويل)",
+    "images": "الصور (الصورة الأولى ستكون الرئيسية)",
+    "saveProduct": "حفظ المنتج",
+    "uploading": "جاري الرفع...",
+    "noCatalogs": "لا توجد كتالوجات متاحة",
+    "viewLiveSite": "عرض الموقع المباشر ↗",
+    "productsList": "المنتجات",
+    "catalogsList": "الكتالوجات",
+    "familiesList": "الفئات",
+    "quickStats": "إحصائيات سريعة",
+    "totalProducts": "إجمالي المنتجات",
+    "activeProducts": "المنتجات النشطة",
+    "totalCatalogs": "إجمالي الكتالوجات",
+    "totalFamilies": "إجمالي الفئات",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "cancel": "إلغاء",
+    "update": "تحديث",
+    "actions": "إجراءات",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "editProduct": "تعديل المنتج",
+    "status": "الحالة",
+    "password": "كلمة المرور",
+    "enterPassword": "أدخل كلمة مرور المسؤول",
+    "invalidPassword": "كلمة المرور غير صحيحة",
+    "somethingWentWrong": "حدث خطأ ما",
+    "signingIn": "جاري تسجيل الدخول...",
+    "signIn": "تسجيل الدخول"
+  }
+}
