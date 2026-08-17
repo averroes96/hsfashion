@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getDictionary, Locale } from '@/lib/dictionaries';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import SmartImage from '@/components/SmartImage';
 
 export default async function CatalogPage({ params }: { params: Promise<{ catalogSlug: string, lang: string }> }) {
   const { catalogSlug, lang } = await params;
@@ -133,11 +134,11 @@ export default async function CatalogPage({ params }: { params: Promise<{ catalo
                       <div className="glass-card hover-lift" style={{ overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' }}>
                         <div style={{ height: '300px', background: 'var(--border-color)', position: 'relative' }}>
                           {primaryImage ? (
-                            <img 
+                            <SmartImage 
                               src={primaryImage.mediumUrl || primaryImage.thumbnailUrl} 
                               alt={product.reference} 
                               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                              loading="lazy"
+                              wrapperStyle={{ width: '100%', height: '100%' }}
                             />
                           ) : (
                             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>

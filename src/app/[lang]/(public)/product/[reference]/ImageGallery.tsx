@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import SmartImage from '@/components/SmartImage';
 
 export default function ImageGallery({ images }: { images: any[] }) {
   const primaryImage = images.find((img: any) => img.isPrimary) || images[0];
@@ -18,11 +19,10 @@ export default function ImageGallery({ images }: { images: any[] }) {
       {/* Main Image */}
       <div className="glass-card fade-in" style={{ width: '100%', overflow: 'hidden', padding: '1rem', background: 'var(--surface)' }}>
         <div style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', background: 'var(--bg-color)' }}>
-          <img 
+          <SmartImage 
             src={activeImage.fullUrl || activeImage.mediumUrl || activeImage.thumbnailUrl} 
             alt="Product" 
             style={{ width: '100%', display: 'block', objectFit: 'contain', maxHeight: '70vh' }}
-            loading="eager"
           />
         </div>
       </div>
@@ -52,8 +52,8 @@ export default function ImageGallery({ images }: { images: any[] }) {
                 if (img.id !== activeImage.id) e.currentTarget.style.opacity = '0.6';
               }}
             >
-              <div style={{ width: '100%', height: '100%', borderRadius: 'var(--radius-sm)', overflow: 'hidden', background: 'var(--bg-color)' }}>
-                <img src={img.thumbnailUrl} alt="thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
+              <div style={{ borderRadius: 'var(--radius-sm)', overflow: 'hidden', height: '100%', width: '100%' }}>
+                <SmartImage src={img.thumbnailUrl} alt="thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover' }} wrapperStyle={{ width: '100%', height: '100%' }} />
               </div>
             </div>
           ))}

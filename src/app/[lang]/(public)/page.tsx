@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import { getDictionary, Locale } from '@/lib/dictionaries';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import SmartImage from '@/components/SmartImage';
 
 export default async function Home({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
@@ -119,10 +120,11 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
                     {/* Background Image Container */}
                     <div style={{ flex: 1, position: 'relative', overflow: 'hidden', background: 'var(--border-color)' }}>
                       {bgImage && (
-                        <img
+                        <SmartImage
                           src={bgImage.mediumUrl || bgImage.thumbnailUrl}
                           alt={catalog.name}
                           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          wrapperStyle={{ width: '100%', height: '100%' }}
                         />
                       )}
                     </div>

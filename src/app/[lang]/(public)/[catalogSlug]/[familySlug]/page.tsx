@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getDictionary, Locale } from '@/lib/dictionaries';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import SmartImage from '@/components/SmartImage';
 
 export default async function FamilyPage({ params }: { params: Promise<{ catalogSlug: string, familySlug: string, lang: string }> }) {
   const { catalogSlug, familySlug, lang } = await params;
@@ -99,17 +100,16 @@ export default async function FamilyPage({ params }: { params: Promise<{ catalog
             gap: '1.5rem' 
           }}>
             {products.map((product: any, index: number) => {
-              const primaryImage = product.images[0];
               return (
                 <Link key={product.id} href={`/${lang}/product/${encodeURIComponent(product.reference)}`} className={`fade-in-up delay-${index % 3 + 1}`}>
                   <div className="glass-card hover-lift" style={{ overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <div style={{ height: '350px', background: 'var(--border-color)', position: 'relative' }}>
-                      {primaryImage ? (
-                        <img 
-                          src={primaryImage.mediumUrl || primaryImage.thumbnailUrl} 
+                    <div style={{ height: '240px', overflow: 'hidden' }}>
+                      {product.images[0] ? (
+                        <SmartImage 
+                          src={product.images[0].mediumUrl} 
                           alt={product.reference} 
                           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                          loading="lazy"
+                          wrapperStyle={{ width: '100%', height: '100%' }}
                         />
                       ) : (
                         <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
