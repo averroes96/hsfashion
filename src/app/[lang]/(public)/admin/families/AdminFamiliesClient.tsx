@@ -3,11 +3,13 @@ import { useState, useEffect } from 'react';
 
 export default function AdminFamiliesClient({ dict }: { dict: any }) {
   const [families, setFamilies] = useState<any[]>([]);
-  const [familyName, setFamilyName] = useState('');
-  const [familyDescription, setFamilyDescription] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
+  const [editArabicName, setEditArabicName] = useState('');
   const [editDescription, setEditDescription] = useState('');
+
+  // Bulk creation state
+  const [newFamilies, setNewFamilies] = useState([{ name: '', arabicName: '', description: '' }]);
 
   useEffect(() => {
     fetchFamilies();
@@ -22,31 +24,46 @@ export default function AdminFamiliesClient({ dict }: { dict: any }) {
     return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   };
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const handleAddRow = () => {
+    setNewFamilies([...newFamilies, { name: '', arabicName: '', description: '' }]);
+  };
+
+  const handleRemoveRow = (index: number) => {
+    const list = [...newFamilies];
+    list.splice(index, 1);
+    setNewFamilies(list);
+  };
+
+  const handleRowChange = (index: number, field: string, value: string) => {
+    const list = [...newFamilies];
+    (list[index] as any)[field] = value;
+    setNewFamilies(list);
+  };
+
+  const handleBulkCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Split by comma or newline, trim spaces, and filter empty strings
-    const names = familyName.split(/[\n,]+/).map(n => n.trim()).filter(n => n !== '');
-    if (names.length === 0) return;
+    // Filter out rows without a name
+    const validFamilies = newFamilies.filter(f => f.name.trim() !== '');
+    if (validFamilies.length === 0) return;
 
     let currentMaxSort = families.length > 0 ? Math.max(...families.map(f => f.sortOrder)) : 0;
     
-    await Promise.all(names.map(async (name, index) => {
-      const slug = generateSlug(name);
-      await fetch('/api/admin/families', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          name, 
-          description: familyDescription, 
-          slug, 
-          sortOrder: currentMaxSort + index + 1 
-        })
-      });
+    const payload = validFamilies.map((f, index) => ({
+      name: f.name.trim(),
+      arabicName: f.arabicName.trim() || undefined,
+      description: f.description.trim() || undefined,
+      slug: generateSlug(f.name.trim()),
+      sortOrder: currentMaxSort + index + 1
     }));
 
-    setFamilyName('');
-    setFamilyDescription('');
+    await fetch('/api/admin/families', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    setNewFamilies([{ name: '', arabicName: '', description: '' }]);
     fetchFamilies();
   };
 
@@ -61,7 +78,7 @@ export default function AdminFamiliesClient({ dict }: { dict: any }) {
     await fetch(`/api/admin/families/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: editName, description: editDescription, slug, sortOrder: currentSortOrder })
+      body: JSON.stringify({ name: editName, arabicName: editArabicName, description: editDescription, slug, sortOrder: currentSortOrder })
     });
     setEditingId(null);
     fetchFamilies();
@@ -70,6 +87,7 @@ export default function AdminFamiliesClient({ dict }: { dict: any }) {
   const startEdit = (family: any) => {
     setEditingId(family.id);
     setEditName(family.name);
+    setEditArabicName(family.arabicName || '');
     setEditDescription(family.description || '');
   };
 
@@ -105,30 +123,61 @@ export default function AdminFamiliesClient({ dict }: { dict: any }) {
       <h1>{dict.admin.familiesList}</h1>
       
       <div className="admin-card" style={{ marginTop: '2rem' }}>
-        <h2>{dict.admin.createFamily} (Bulk Create)</h2>
-        <form onSubmit={handleCreate} style={{ marginTop: '1rem', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-          <div className="form-group" style={{ flex: 1 }}>
-            <label>{dict.admin.name} (One per line or comma-separated)</label>
-            <textarea 
-              className="form-control" 
-              value={familyName} 
-              onChange={e => setFamilyName(e.target.value)} 
-              required 
-              rows={3}
-              placeholder="e.g. Sneakers, Boots, Loafers"
-            />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <h2>{dict.admin.createFamily} (Bulk)</h2>
+          <button type="button" onClick={handleAddRow} className="btn btn-outline" style={{ padding: '0.25rem 0.75rem', fontSize: '0.875rem' }}>
+            + Add Row
+          </button>
+        </div>
+
+        <form onSubmit={handleBulkCreate}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {newFamilies.map((row, i) => (
+              <div key={i} style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', background: 'var(--bg-color)', padding: '1rem', borderRadius: 'var(--radius-md)' }}>
+                <div style={{ flex: 1 }}>
+                  <label>{dict.admin.name} *</label>
+                  <input 
+                    type="text"
+                    className="form-control" 
+                    value={row.name} 
+                    onChange={e => handleRowChange(i, 'name', e.target.value)} 
+                    required 
+                    placeholder="e.g. Sneakers"
+                  />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label>Arabic Name</label>
+                  <input 
+                    type="text"
+                    dir="rtl"
+                    className="form-control" 
+                    value={row.arabicName} 
+                    onChange={e => handleRowChange(i, 'arabicName', e.target.value)} 
+                    placeholder="e.g. أحذية رياضية"
+                  />
+                </div>
+                <div style={{ flex: 2 }}>
+                  <label>{dict.admin.descriptionLong}</label>
+                  <input 
+                    type="text"
+                    className="form-control" 
+                    value={row.description} 
+                    onChange={e => handleRowChange(i, 'description', e.target.value)} 
+                    placeholder="Optional description..."
+                  />
+                </div>
+                {newFamilies.length > 1 && (
+                  <div style={{ paddingTop: '1.5rem' }}>
+                    <button type="button" onClick={() => handleRemoveRow(i)} className="btn btn-danger" style={{ padding: '0.5rem 0.75rem', fontSize: '1.25rem', lineHeight: 1 }}>
+                      &times;
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
-          <div className="form-group" style={{ flex: 2 }}>
-            <label>{dict.admin.descriptionLong}</label>
-            <textarea 
-              className="form-control" 
-              value={familyDescription} 
-              onChange={e => setFamilyDescription(e.target.value)} 
-              rows={3}
-              placeholder="Optional description applied to all..."
-            />
-          </div>
-          <div style={{ paddingTop: '1.5rem' }}>
+          
+          <div style={{ paddingTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
             <button type="submit" className="btn btn-primary">{dict.admin.createFamily}</button>
           </div>
         </form>
@@ -140,6 +189,7 @@ export default function AdminFamiliesClient({ dict }: { dict: any }) {
             <tr>
               <th>Order</th>
               <th>{dict.admin.name}</th>
+              <th>Arabic Name</th>
               <th>{dict.admin.descriptionLong}</th>
               <th style={{ textAlign: 'right' }}>{dict.admin.actions}</th>
             </tr>
@@ -156,6 +206,13 @@ export default function AdminFamiliesClient({ dict }: { dict: any }) {
                     <input className="form-control" value={editName} onChange={e => setEditName(e.target.value)} />
                   ) : (
                     family.name
+                  )}
+                </td>
+                <td dir="rtl" style={{ textAlign: 'right' }}>
+                  {editingId === family.id ? (
+                    <input className="form-control" value={editArabicName} onChange={e => setEditArabicName(e.target.value)} />
+                  ) : (
+                    <span style={{ color: 'var(--text-muted)' }}>{family.arabicName || '-'}</span>
                   )}
                 </td>
                 <td>
@@ -182,7 +239,7 @@ export default function AdminFamiliesClient({ dict }: { dict: any }) {
             ))}
             {families.length === 0 && (
               <tr>
-                <td colSpan={4} style={{ padding: '3rem 0', textAlign: 'center', color: 'var(--text-muted)' }}>
+                <td colSpan={5} style={{ padding: '3rem 0', textAlign: 'center', color: 'var(--text-muted)' }}>
                   No families available.
                 </td>
               </tr>
