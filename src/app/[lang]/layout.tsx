@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Cairo } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
+import PromoBanner from "@/components/PromoBanner";
 import "../globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: '--font-inter' });
@@ -39,21 +40,7 @@ export default async function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
       <body className={mainFontClass}>
-        {settings?.promoMessage && (
-          <div style={{ 
-            background: 'var(--primary)', 
-            color: 'white', 
-            textAlign: 'center', 
-            padding: '0.75rem', 
-            fontSize: '0.9rem', 
-            fontWeight: 600,
-            position: 'relative',
-            zIndex: 1000,
-            width: '100%'
-          }}>
-            {settings.promoMessage}
-          </div>
-        )}
+        <PromoBanner message={settings?.promoMessage} />
         {children}
         <Analytics />
       </body>
