@@ -41,7 +41,14 @@ export default function AdminNewProductClient({ dict }: { dict: any }) {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFiles(Array.from(e.target.files));
+      const selectedFiles = Array.from(e.target.files);
+      if (selectedFiles.length > 5) {
+        alert(dict.admin?.maxImagesError || 'You can only upload a maximum of 5 images per product.');
+        e.target.value = ''; // Reset the input
+        setFiles([]);
+      } else {
+        setFiles(selectedFiles);
+      }
     }
   };
 
