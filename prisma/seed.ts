@@ -2,7 +2,13 @@ import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL || 'postgresql://admin:password@localhost:5432/hsfashion?schema=public' });
+const connectionString = process.env.DATABASE_URL || 'postgresql://admin:password@localhost:5432/hsfashion?schema=public';
+const isLocal = connectionString.includes('localhost') || connectionString.includes('127.0.0.1');
+
+const pool = new Pool({
+  connectionString,
+  ssl: isLocal ? false : { rejectUnauthorized: false }
+});
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
