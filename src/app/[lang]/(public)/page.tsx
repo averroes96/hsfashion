@@ -51,7 +51,7 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
               maxWidth: '800px',
               margin: '0 auto 1.5rem auto'
             }}>
-              {settings?.promoMessage || dict.home.title}
+              {dict.home.title}
             </h1>
 
             <p style={{ 
