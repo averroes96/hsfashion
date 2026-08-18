@@ -7,11 +7,12 @@ export default function AdminDashboardClient({ dict }: { dict: any }) {
   const params = useParams();
   const lang = params.lang as string;
   
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<any>({
     totalProducts: 0,
     activeProducts: 0,
     totalCatalogs: 0,
-    totalFamilies: 0
+    totalFamilies: 0,
+    topProducts: []
   });
 
   // Store Settings state
@@ -86,6 +87,48 @@ export default function AdminDashboardClient({ dict }: { dict: any }) {
           </div>
         </div>
       </div>
+
+      {stats.topProducts && stats.topProducts.length > 0 && (
+        <div className="admin-card" style={{ marginTop: '2rem' }}>
+          <h2>{dict.admin.topProducts || "Top Products by Views"}</h2>
+          <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {stats.topProducts.map((product: any, index: number) => (
+              <div key={product.id} style={{ 
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
+                padding: '1rem', background: 'var(--bg-color)', 
+                border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)' 
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <div style={{ 
+                    width: '30px', height: '30px', borderRadius: '50%', 
+                    background: index === 0 ? 'var(--primary)' : 'var(--border-color)', 
+                    color: index === 0 ? 'white' : 'var(--text-muted)', 
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                    fontWeight: 'bold', fontSize: '0.875rem' 
+                  }}>
+                    {index + 1}
+                  </div>
+                  {product.images?.[0] && (
+                    <img 
+                      src={product.images[0].thumbnailUrl} 
+                      alt={product.reference} 
+                      style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} 
+                    />
+                  )}
+                  <div>
+                    <div style={{ fontWeight: 600 }}>{product.reference}</div>
+                    <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{product.family?.name}</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)', fontWeight: 'bold' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>visibility</span>
+                  {product.views}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       
       <div className="admin-card" style={{ marginTop: '2rem' }}>
         <h2>{dict.admin.storeSettings}</h2>

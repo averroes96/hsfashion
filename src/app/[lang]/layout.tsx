@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Cairo } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import "../globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: '--font-inter' });
@@ -54,6 +55,7 @@ export default async function RootLayout({
           </div>
         )}
         {children}
+        <Analytics />
       </body>
     </html>
   );

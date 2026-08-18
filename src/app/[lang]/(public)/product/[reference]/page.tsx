@@ -5,6 +5,7 @@ import ImageGallery from './ImageGallery';
 import WhatsAppButton from './WhatsAppButton';
 import { getDictionary, Locale } from '@/lib/dictionaries';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import ProductTracker from '@/components/ProductTracker';
 
 export default async function ProductPage({ params }: { params: Promise<{ reference: string, lang: string }> }) {
   const { reference, lang } = await params;
@@ -34,6 +35,8 @@ export default async function ProductPage({ params }: { params: Promise<{ refere
         <div className="blob blob-1"></div>
         <div className="blob blob-2"></div>
       </div>
+      
+      <ProductTracker productId={product.id} />
 
       <header className="main-header">
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
