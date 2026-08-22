@@ -41,14 +41,16 @@ model Product {
   reference   String   @unique
   details     String?
   description String?
-  isActive    Boolean  @default(true)
-  views       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isActive         Boolean        @default(true)
+  views            Int            @default(0)
+  aiSimilarCache   Json?
+  aiCacheUpdatedAt DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 
-  family      Family         @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  catalogs    Catalog[]
-  images      ProductImage[]
+  family           Family         @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  catalogs         Catalog[]
+  images           ProductImage[]
 }
 
 model ProductImage {

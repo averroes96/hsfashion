@@ -26,13 +26,20 @@ export async function POST(request: Request) {
 
     const cleanBase64 = imageBase64.replace(/^data:image\/[a-zA-Z+]+;base64,/, '');
 
-    // Fetch active products
+    // Fetch active products with lightweight projection
     const products = await prisma.product.findMany({
       where: { isActive: true },
-      include: {
-        family: true,
-        catalogs: true,
-        images: { orderBy: { sortOrder: 'asc' }, take: 1 }
+      select: {
+        id: true,
+        reference: true,
+        details: true,
+        description: true,
+        family: { select: { name: true, arabicName: true } },
+        images: {
+          where: { isPrimary: true },
+          take: 1,
+          select: { mediumUrl: true, thumbnailUrl: true }
+        }
       }
     });
 
@@ -201,7 +208,6 @@ Respond ONLY with valid JSON adhering to the specified schema.`;
             reference: product.reference,
             details: product.details,
             family: product.family,
-            catalogs: product.catalogs,
             image: product.images[0] || null,
           }
         };

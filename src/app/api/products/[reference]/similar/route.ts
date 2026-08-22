@@ -15,13 +15,18 @@ export async function GET(
     const { searchParams } = new URL(request.url);
     const lang = searchParams.get('lang') || 'fr';
 
-    // Fetch the target product
+    // 1. Fetch the target product
     const targetProduct = await prisma.product.findUnique({
       where: { reference: decodedReference },
-      include: {
-        family: true,
-        catalogs: true,
-        images: { orderBy: { sortOrder: 'asc' }, take: 1 }
+      select: {
+        id: true,
+        reference: true,
+        details: true,
+        description: true,
+        familyId: true,
+        family: { select: { name: true, arabicName: true } },
+        aiSimilarCache: true,
+        aiCacheUpdatedAt: true,
       }
     });
 
@@ -29,16 +34,77 @@ export async function GET(
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
-    // Fetch other active products
+    // 2. CHECK CACHE FIRST (< 5ms response)
+    const cacheObj = targetProduct.aiSimilarCache as Record<string, any[]> | null;
+    const cachedMatches = cacheObj?.[lang];
+
+    if (Array.isArray(cachedMatches) && cachedMatches.length > 0) {
+      const cachedProductIds = cachedMatches.map(m => m.productId);
+
+      // Fast indexed fetch for active products and images
+      const matchingProducts = await prisma.product.findMany({
+        where: {
+          id: { in: cachedProductIds },
+          isActive: true,
+        },
+        select: {
+          id: true,
+          reference: true,
+          details: true,
+          family: { select: { name: true, arabicName: true } },
+          images: {
+            where: { isPrimary: true },
+            take: 1,
+            select: { mediumUrl: true, thumbnailUrl: true }
+          }
+        }
+      });
+
+      const prodMap = new Map(matchingProducts.map(p => [p.id, p]));
+
+      const hydrated = cachedMatches
+        .map(m => {
+          const prod = prodMap.get(m.productId);
+          if (!prod) return null;
+          return {
+            ...m,
+            product: {
+              id: prod.id,
+              reference: prod.reference,
+              details: prod.details,
+              family: prod.family,
+              image: prod.images[0] || null
+            }
+          };
+        })
+        .filter(Boolean);
+
+      if (hydrated.length > 0) {
+        return NextResponse.json(
+          { matches: hydrated, fromCache: true },
+          { headers: { 'X-Cache': 'HIT' } }
+        );
+      }
+    }
+
+    // 3. CACHE MISS -> Fetch other active products with minimal projection
     const otherProducts = await prisma.product.findMany({
       where: {
         isActive: true,
         id: { not: targetProduct.id }
       },
-      include: {
-        family: true,
-        catalogs: true,
-        images: { orderBy: { sortOrder: 'asc' }, take: 1 }
+      select: {
+        id: true,
+        reference: true,
+        familyId: true,
+        family: { select: { name: true, arabicName: true } },
+        details: true,
+        description: true,
+        images: {
+          where: { isPrimary: true },
+          take: 1,
+          select: { mediumUrl: true, thumbnailUrl: true }
+        }
       }
     });
 
@@ -46,9 +112,7 @@ export async function GET(
       return NextResponse.json({ matches: [] });
     }
 
-    // Default fallback formatter
     const createFallbackMatches = (prods: typeof otherProducts) => {
-      // Prioritize same family, then others
       const sorted = [...prods].sort((a, b) => {
         const aSame = a.familyId === targetProduct.familyId ? 1 : 0;
         const bSame = b.familyId === targetProduct.familyId ? 1 : 0;
@@ -77,6 +141,7 @@ export async function GET(
       return NextResponse.json({ matches: createFallbackMatches(otherProducts) });
     }
 
+    // Compact candidate summary for fast TTFT (Time to First Token)
     const candidateSummary = otherProducts.map(p => ({
       id: p.id,
       reference: p.reference,
@@ -86,8 +151,8 @@ export async function GET(
       description: p.description || ''
     }));
 
-    const prompt = `You are a luxury footwear personal stylist and merchandising expert for HS Fashion.
-Analyze the target shoe and find the top 4-6 most stylistically, aesthetically, or functionally similar models from the candidate items list.
+    const prompt = `You are a luxury footwear personal stylist for HS Fashion.
+Analyze the target shoe and pick the top 4-6 most stylistically and aesthetically matching models from the candidates.
 
 Target Shoe:
 - Reference: "${targetProduct.reference}"
@@ -99,11 +164,11 @@ Candidate Items:
 ${JSON.stringify(candidateSummary, null, 2)}
 
 Tasks:
-1. Rank up to 6 candidate items from most similar to least (considering silhouette, sole structure, occasion, material, and vibe).
+1. Rank up to 6 candidate items from most similar to least (considering silhouette, sole design, vibe, materials, and occasion).
 2. For each match, return:
-   - "productId": The exact candidate ID.
+   - "productId": The candidate ID.
    - "similarityScore": A number between 70 and 98.
-   - "matchHighlight": A concise 2-3 word badge in ${lang === 'ar' ? 'Arabic' : 'French'} (e.g. "Silhouette Similaire", "Semelle Équivalente", "Même Ambiance", "Style Assorti").
+   - "matchHighlight": A concise 2-3 word badge in ${lang === 'ar' ? 'Arabic' : 'French'}.
    - "matchReason": A concise 1-sentence explanation of the similarity in ${lang === 'ar' ? 'Arabic' : 'French'}.
 
 Respond ONLY with valid JSON adhering to the specified schema.`;
@@ -140,7 +205,7 @@ Respond ONLY with valid JSON adhering to the specified schema.`;
       });
       responseText = response.text || '';
     } catch (primaryErr) {
-      console.warn('Gemini 3.6 Flash failed for recommendations, trying fallback model:', primaryErr);
+      console.warn('Gemini 3.6 Flash failed, falling back to gemini-flash-latest:', primaryErr);
       const fallbackResponse = await ai.models.generateContent({
         model: 'gemini-flash-latest',
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -171,9 +236,30 @@ Respond ONLY with valid JSON adhering to the specified schema.`;
     }
 
     const parsed = JSON.parse(responseText);
+    const rawMatches = parsed.matches || [];
+
+    // Save to Database Cache asynchronously
+    if (rawMatches.length > 0) {
+      const newCache = {
+        ...(typeof targetProduct.aiSimilarCache === 'object' && targetProduct.aiSimilarCache !== null
+          ? (targetProduct.aiSimilarCache as Record<string, any>)
+          : {}),
+        [lang]: rawMatches
+      };
+
+      // Asynchronous update without blocking response
+      prisma.product.update({
+        where: { id: targetProduct.id },
+        data: {
+          aiSimilarCache: newCache,
+          aiCacheUpdatedAt: new Date()
+        }
+      }).catch(e => console.error('Failed to update product AI cache:', e));
+    }
+
     const productMap = new Map(otherProducts.map(p => [p.id, p]));
 
-    const enrichedMatches = (parsed.matches || [])
+    const enrichedMatches = rawMatches
       .map((m: any) => {
         const prod = productMap.get(m.productId);
         if (!prod) return null;
@@ -190,19 +276,23 @@ Respond ONLY with valid JSON adhering to the specified schema.`;
       })
       .filter(Boolean);
 
-    if (enrichedMatches.length === 0) {
-      return NextResponse.json({ matches: createFallbackMatches(otherProducts) });
-    }
-
-    return NextResponse.json({ matches: enrichedMatches });
+    return NextResponse.json(
+      { matches: enrichedMatches, fromCache: false },
+      { headers: { 'X-Cache': 'MISS' } }
+    );
   } catch (error: any) {
     console.error('Similar products recommendation error:', error);
-    // Even if everything fails, query active products and return graceful fallback
     try {
       const fallbackProducts = await prisma.product.findMany({
         where: { isActive: true },
         take: 6,
-        include: { family: true, images: { take: 1 } }
+        select: {
+          id: true,
+          reference: true,
+          details: true,
+          family: { select: { name: true, arabicName: true } },
+          images: { where: { isPrimary: true }, take: 1 }
+        }
       });
       const matches = fallbackProducts.map(p => ({
         productId: p.id,
