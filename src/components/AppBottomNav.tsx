@@ -101,16 +101,21 @@ export default function AppBottomNav({ lang, dict, phoneNumber }: AppBottomNavPr
         </a>
 
         {/* Center Tab: Floating AI Photo Search Button */}
-        <button
-          type="button"
-          onClick={handleOpenAi}
-          className="ai-camera-fab"
-          aria-label="Recherche Photo AI"
-          title="Search by Photo AI"
-        >
-          <span style={{ fontSize: '1.25rem', lineHeight: 1 }}>📷</span>
-          <span style={{ fontSize: '0.55rem', fontWeight: 900, letterSpacing: '0.04em' }}>AI</span>
-        </button>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '-12px' }}>
+          <button
+            type="button"
+            onClick={handleOpenAi}
+            className="ai-camera-fab app-tap-target"
+            aria-label="Recherche Photo AI"
+            title="Search by Photo AI"
+          >
+            <span style={{ fontSize: '1.35rem', lineHeight: 1 }}>📷</span>
+            <span style={{ fontSize: '0.55rem', fontWeight: 900, letterSpacing: '0.04em', lineHeight: 1 }}>AI</span>
+          </button>
+          <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--primary)', marginTop: '3px' }}>
+            {isArabic ? 'بحث بالصورة' : 'IA Photo'}
+          </span>
+        </div>
 
         {/* Tab 4: Language Switcher */}
         <button
