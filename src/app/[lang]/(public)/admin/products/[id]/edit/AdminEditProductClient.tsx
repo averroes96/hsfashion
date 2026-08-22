@@ -84,13 +84,16 @@ export default function AdminEditProductClient({ dict, productId }: { dict: any,
         })
       });
 
-      if (!productRes.ok) throw new Error('Product update failed');
+      if (!productRes.ok) {
+        const errData = await productRes.json().catch(() => ({}));
+        throw new Error(errData?.error || 'Product update failed');
+      }
       
       alert('Product updated successfully!');
       router.push(`/${lang}/admin/products`);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert('Error updating product. Check console.');
+      alert(error.message || 'Error updating product.');
     } finally {
       setIsSubmitting(false);
     }

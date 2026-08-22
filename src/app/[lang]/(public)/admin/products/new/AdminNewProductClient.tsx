@@ -158,13 +158,16 @@ export default function AdminNewProductClient({ dict }: { dict: any }) {
         })
       });
 
-      if (!productRes.ok) throw new Error('Product creation failed');
+      if (!productRes.ok) {
+        const errData = await productRes.json().catch(() => ({}));
+        throw new Error(errData?.error || 'Product creation failed');
+      }
       
       alert('Product created successfully!');
       router.push(`/${lang}/admin`);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert('Error creating product. Check console.');
+      alert(error.message || 'Error creating product.');
     } finally {
       setIsSubmitting(false);
     }

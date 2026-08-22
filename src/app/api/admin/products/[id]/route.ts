@@ -49,8 +49,14 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     });
     
     return NextResponse.json(product);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
+    if (error?.code === 'P2002' || error?.message?.includes('Unique constraint failed')) {
+      return NextResponse.json(
+        { error: 'Un produit avec cette référence existe déjà. Veuillez choisir une référence unique / A product with this SKU already exists.' },
+        { status: 409 }
+      );
+    }
     return NextResponse.json({ error: 'Failed to update product' }, { status: 500 });
   }
 }

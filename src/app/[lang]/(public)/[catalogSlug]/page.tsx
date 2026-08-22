@@ -2,8 +2,8 @@ import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getDictionary, Locale } from '@/lib/dictionaries';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
 import SmartImage from '@/components/SmartImage';
+import PublicHeader from '@/components/PublicHeader';
 
 export default async function CatalogPage({ params }: { params: Promise<{ catalogSlug: string, lang: string }> }) {
   const { catalogSlug, lang } = await params;
@@ -47,15 +47,7 @@ export default async function CatalogPage({ params }: { params: Promise<{ catalo
         <div className="blob blob-2"></div>
       </div>
 
-      <header className="main-header">
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Link href={`/${lang}`} className="logo">
-            <span style={{ color: 'var(--primary)', fontSize: '2rem' }}>•</span>
-            HS Fashion
-          </Link>
-          <LanguageSwitcher currentLang={lang} />
-        </div>
-      </header>
+      <PublicHeader lang={lang} dict={dict} />
       
       <main className="fade-in">
         {/* Hero Section for Catalog */}

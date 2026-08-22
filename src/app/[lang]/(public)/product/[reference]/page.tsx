@@ -4,8 +4,8 @@ import { notFound } from 'next/navigation';
 import ImageGallery from './ImageGallery';
 import WhatsAppButton from './WhatsAppButton';
 import { getDictionary, Locale } from '@/lib/dictionaries';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
 import ProductTracker from '@/components/ProductTracker';
+import PublicHeader from '@/components/PublicHeader';
 
 export default async function ProductPage({ params }: { params: Promise<{ reference: string, lang: string }> }) {
   const { reference, lang } = await params;
@@ -38,15 +38,7 @@ export default async function ProductPage({ params }: { params: Promise<{ refere
       
       <ProductTracker productId={product.id} />
 
-      <header className="main-header">
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Link href={`/${lang}`} className="logo">
-            <span style={{ color: 'var(--primary)', fontSize: '2rem' }}>•</span>
-            HS Fashion
-          </Link>
-          <LanguageSwitcher currentLang={lang} />
-        </div>
-      </header>
+      <PublicHeader lang={lang} dict={dict} />
       
       <main className="fade-in">
         <div className="container" style={{ marginTop: 'var(--spacing-lg)', marginBottom: 'var(--spacing-xl)' }}>

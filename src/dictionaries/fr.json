@@ -83,5 +83,19 @@
     "showing": "Affichage de",
     "to": "à",
     "results": "résultats"
+  },
+  "visualSearch": {
+    "searchPlaceholder": "Rechercher une référence ou importer une photo...",
+    "photoSearch": "Recherche par photo",
+    "modalTitle": "Recherche Visuelle par IA ✨",
+    "modalSubtitle": "Importez la photo d'une chaussure pour trouver instantanément les modèles similaires dans notre collection.",
+    "dropzoneText": "Glissez-déposez une photo ici ou cliquez pour parcourir",
+    "analyzing": "Analyse de la silhouette et des détails par Gemini AI...",
+    "noMatches": "Aucun modèle similaire trouvé dans le catalogue actif.",
+    "matchedItems": "Modèles similaires trouvés",
+    "viewProduct": "Voir le produit",
+    "inquire": "Renseignez-vous",
+    "tryAnother": "Essayer une autre photo",
+    "close": "Fermer"
   }
 }
