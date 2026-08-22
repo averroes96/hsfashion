@@ -4,8 +4,21 @@ import { PrismaClient } from '@prisma/client'
 
 const connectionString = process.env.DATABASE_URL || ''
 
+const isProd = process.env.NODE_ENV === 'production'
+
 const prismaClientSingleton = () => {
-  const pool = new Pool({ connectionString, max: 1 })
+  const pool = new Pool({
+    connectionString,
+    max: isProd ? 5 : 10,
+    connectionTimeoutMillis: 10000,
+    idleTimeoutMillis: 30000,
+    allowExitOnIdle: !isProd,
+  })
+
+  pool.on('error', (err) => {
+    console.error('Unexpected error on idle pg client', err)
+  })
+
   const adapter = new PrismaPg(pool)
   return new PrismaClient({ adapter })
 }
