@@ -11,6 +11,7 @@
     "collections": "Collections"
   },
   "catalog": {
+    "all": "Tous",
     "viewAll": "Voir tout",
     "noProducts": "Aucun produit dans ce catalogue pour le moment."
   },

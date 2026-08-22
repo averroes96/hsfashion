@@ -5,6 +5,7 @@ import { getDictionary, Locale } from '@/lib/dictionaries';
 import SmartImage from '@/components/SmartImage';
 import Pagination from '@/components/Pagination';
 import PublicHeader from '@/components/PublicHeader';
+import CategoryPillSlider from '@/components/CategoryPillSlider';
 
 const PRODUCTS_PER_PAGE = 12;
 
@@ -20,12 +21,23 @@ export default async function FamilyPage({
   const currentPage = Math.max(1, parseInt(page || '1', 10) || 1);
   const dict = await getDictionary(lang as Locale);
   
-  const [family, catalog] = await Promise.all([
+  const [family, catalog, allCatalogFamilies] = await Promise.all([
     prisma.family.findUnique({
       where: { slug: familySlug },
     }),
     prisma.catalog.findUnique({
       where: { slug: catalogSlug },
+    }),
+    prisma.family.findMany({
+      where: {
+        products: {
+          some: {
+            isActive: true,
+            catalogs: { some: { slug: catalogSlug } }
+          }
+        }
+      },
+      orderBy: { name: 'asc' }
     })
   ]);
 
@@ -101,6 +113,16 @@ export default async function FamilyPage({
         </section>
 
         <div className="container" style={{ paddingBottom: 'var(--spacing-xl)' }}>
+          {allCatalogFamilies.length > 1 && (
+            <CategoryPillSlider
+              families={allCatalogFamilies}
+              currentSlug={family.slug}
+              catalogSlug={catalog.slug}
+              lang={lang}
+              allLabel={dict?.catalog?.all || (lang === 'ar' ? 'الكل' : 'Tous')}
+            />
+          )}
+
           {products.length === 0 && (
             <div className="glass-card fade-in-up" style={{ padding: '3rem', textAlign: 'center' }}>
               <p style={{ color: 'var(--text-muted)' }}>{dict.family.noProducts}</p>

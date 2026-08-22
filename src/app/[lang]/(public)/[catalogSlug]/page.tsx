@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { getDictionary, Locale } from '@/lib/dictionaries';
 import SmartImage from '@/components/SmartImage';
 import PublicHeader from '@/components/PublicHeader';
+import CategoryPillSlider from '@/components/CategoryPillSlider';
 
 export default async function CatalogPage({ params }: { params: Promise<{ catalogSlug: string, lang: string }> }) {
   const { catalogSlug, lang } = await params;
@@ -82,6 +83,15 @@ export default async function CatalogPage({ params }: { params: Promise<{ catalo
         </section>
 
         <div className="container" style={{ paddingBottom: 'var(--spacing-xl)' }}>
+          {sortedFamilies.length > 1 && (
+            <CategoryPillSlider
+              families={sortedFamilies.map(g => g.family)}
+              catalogSlug={catalog.slug}
+              lang={lang}
+              allLabel={dict?.catalog?.all || (lang === 'ar' ? 'الكل' : 'Tous')}
+            />
+          )}
+
           {sortedFamilies.length === 0 && (
             <div className="glass-card fade-in-up" style={{ padding: '3rem', textAlign: 'center' }}>
               <p style={{ color: 'var(--text-muted)' }}>{dict.catalog.noProducts}</p>
@@ -89,7 +99,7 @@ export default async function CatalogPage({ params }: { params: Promise<{ catalo
           )}
           
           {sortedFamilies.map((group, index) => (
-            <section key={group.family.id} style={{ marginBottom: '3rem' }} className={`fade-in-up delay-${index % 3 + 1}`}>
+            <section id={`family-${group.family.id}`} key={group.family.id} style={{ marginBottom: '3rem' }} className={`fade-in-up delay-${index % 3 + 1}`}>
               {/* Sticky Header */}
               <div style={{ 
                 position: 'sticky', 

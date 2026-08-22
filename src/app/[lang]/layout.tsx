@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Cairo } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -8,12 +8,20 @@ import "../globals.css";
 const inter = Inter({ subsets: ["latin"], variable: '--font-inter' });
 const cairo = Cairo({ subsets: ["arabic", "latin"], variable: '--font-cairo' });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export const metadata: Metadata = {
   title: "HS Fashion Catalog",
   description: "Digital Showroom for HS Fashion products",
 };
 
 import prisma from '@/lib/prisma';
+import { getDictionary, Locale } from '@/lib/dictionaries';
+import AppBottomNav from "@/components/AppBottomNav";
 
 export default async function RootLayout({
   children,
@@ -27,10 +35,14 @@ export default async function RootLayout({
   const mainFontClass = lang === 'ar' ? cairo.className : inter.className;
   
   let settings = null;
+  let dict = null;
   try {
-    settings = await prisma.storeSettings.findUnique({
-      where: { id: 'default' }
-    });
+    const [fetchedSettings, fetchedDict] = await Promise.all([
+      prisma.storeSettings.findUnique({ where: { id: 'default' } }),
+      getDictionary(lang as Locale)
+    ]);
+    settings = fetchedSettings;
+    dict = fetchedDict;
   } catch (e) {
     // ignore
   }
@@ -38,11 +50,16 @@ export default async function RootLayout({
   return (
     <html lang={lang} dir={dir} className={`${inter.variable} ${cairo.variable}`}>
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+        <meta name="theme-color" content="#4f46e5" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
       <body className={mainFontClass}>
         <PromoBanner message={settings?.promoMessage} />
         {children}
+        <AppBottomNav lang={lang} dict={dict} phoneNumber={settings?.phoneNumber} />
         <Analytics />
         <SpeedInsights />
       </body>

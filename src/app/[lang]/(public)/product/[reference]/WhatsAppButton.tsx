@@ -32,16 +32,47 @@ export default function WhatsAppButton({
   };
 
   return (
-    <a 
-      href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      onClick={handleClick}
-      className="btn btn-primary" 
-      style={{ width: '100%', padding: '1rem 1.5rem', fontSize: '1.125rem', textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}
-    >
-      <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>chat</span>
-      {inquireText}
-    </a>
+    <>
+      {/* Standard In-Page Button (Desktop & Scrolling Flow) */}
+      <a 
+        href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={handleClick}
+        className="btn btn-primary app-tap-target" 
+        style={{ width: '100%', padding: '0.95rem 1.5rem', fontSize: '1.05rem', textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}
+      >
+        <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>chat</span>
+        {inquireText}
+      </a>
+
+      {/* Fixed Mobile Bottom Action Sheet (Instant One-Tap Conversion) */}
+      <div className="product-mobile-bottom-bar hide-desktop">
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>Réf</span>
+          <strong style={{ fontSize: '1.1rem', color: 'var(--text-main)', lineHeight: 1.2 }}>{reference}</strong>
+        </div>
+        
+        <a 
+          href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={handleClick}
+          className="btn btn-primary app-tap-target" 
+          style={{ 
+            padding: '0.65rem 1.25rem', 
+            fontSize: '0.92rem', 
+            borderRadius: 'var(--radius-full)', 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '0.4rem',
+            boxShadow: '0 4px 14px rgba(79, 70, 229, 0.4)'
+          }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }}>chat</span>
+          <span>{inquireText}</span>
+        </a>
+      </div>
+    </>
   );
 }
