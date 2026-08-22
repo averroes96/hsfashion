@@ -142,28 +142,6 @@ export default function AppBottomNav({ lang, dict, phoneNumber }: AppBottomNavPr
           </span>
           <span>{isArabic ? 'Français' : 'العربية'}</span>
         </button>
-
-        {/* Tab 5: Admin Portal Link */}
-        <Link
-          href={`/${lang}/admin`}
-          className="app-tap-target"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '2px',
-            color: 'var(--text-muted)',
-            fontSize: '0.72rem',
-            fontWeight: 500,
-            textDecoration: 'none',
-            minWidth: '54px',
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.4rem' }}>
-            lock
-          </span>
-          <span>{isArabic ? 'الإدارة' : 'Admin'}</span>
-        </Link>
       </nav>
 
       {/* AI Visual Search Modal Triggered From Center FAB */}
