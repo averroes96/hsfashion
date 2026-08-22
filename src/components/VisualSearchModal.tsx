@@ -1,6 +1,7 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { track } from '@vercel/analytics';
 import SmartImage from './SmartImage';
 
 interface VisualSearchModalProps {
@@ -98,6 +99,14 @@ export default function VisualSearchModal({
         const data = await res.json();
         setResults(data.matches || []);
         setDetectedAttributes(data.detectedAttributes || null);
+        try {
+          track('visual_search_performed', {
+            matchCount: data.matches?.length || 0,
+            category: data.detectedAttributes?.category || 'unknown'
+          });
+        } catch {
+          // ignore
+        }
       } catch (err: any) {
         console.error(err);
         setErrorMessage(err.message || 'Error analyzing photo. Please try again.');
