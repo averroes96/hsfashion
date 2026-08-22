@@ -1,5 +1,6 @@
 'use client';
 import { usePathname, useRouter } from 'next/navigation';
+import { track } from '@vercel/analytics';
 
 export default function LanguageSwitcher({ currentLang }: { currentLang: string }) {
   const pathname = usePathname();
@@ -7,6 +8,9 @@ export default function LanguageSwitcher({ currentLang }: { currentLang: string 
 
   const switchLanguage = (lang: string) => {
     if (lang === currentLang) return;
+    try {
+      track('language_switched', { from: currentLang, to: lang });
+    } catch {}
     // Replace the current locale in the pathname with the new locale
     const newPath = pathname.replace(`/${currentLang}`, `/${lang}`);
     router.push(newPath);
