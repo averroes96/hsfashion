@@ -17,6 +17,8 @@ export default function AdminNewProductClient({ dict }: { dict: any }) {
   
   const [files, setFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAiAnalyzing, setIsAiAnalyzing] = useState(false);
+  const [aiStatus, setAiStatus] = useState<string | null>(null);
 
   useEffect(() => {
     fetchFamilies();
@@ -48,7 +50,70 @@ export default function AdminNewProductClient({ dict }: { dict: any }) {
         setFiles([]);
       } else {
         setFiles(selectedFiles);
+        setAiStatus(null);
       }
+    }
+  };
+
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  const handleAiAutoFill = async () => {
+    if (files.length === 0) {
+      alert(dict.admin?.ai?.selectImageFirst || 'Please select at least one image first.');
+      return;
+    }
+
+    setIsAiAnalyzing(true);
+    setAiStatus(null);
+
+    try {
+      const primaryFile = files[0];
+      const base64Data = await fileToBase64(primaryFile);
+
+      const res = await fetch('/api/admin/ai/auto-fill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageBase64: base64Data,
+          mimeType: primaryFile.type || 'image/jpeg',
+          families,
+          lang
+        })
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData?.error || 'AI Auto-fill failed');
+      }
+
+      const aiData = await res.json();
+
+      if (aiData.familyId && families.some((f: any) => f.id === aiData.familyId)) {
+        setFamilyId(aiData.familyId);
+      }
+      if (aiData.details) {
+        setDetails(aiData.details);
+      }
+      if (aiData.description) {
+        setDescription(aiData.description);
+      }
+      if (aiData.detectedSku && !reference) {
+        setReference(aiData.detectedSku);
+      }
+
+      setAiStatus(dict.admin?.ai?.aiSuccess || 'Detected category and generated details successfully!');
+    } catch (err: any) {
+      console.error(err);
+      alert(dict.admin?.ai?.aiError || (err.message || 'AI Auto-fill encountered an error.'));
+    } finally {
+      setIsAiAnalyzing(false);
     }
   };
 
@@ -107,11 +172,100 @@ export default function AdminNewProductClient({ dict }: { dict: any }) {
 
   return (
     <div>
-      <h1>{dict.admin.addNewProduct}</h1>
-      <div className="admin-card" style={{ marginTop: '2rem', maxWidth: '800px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h1>{dict.admin.addNewProduct}</h1>
+        {files.length > 0 && (
+          <button
+            type="button"
+            onClick={handleAiAutoFill}
+            disabled={isAiAnalyzing || isSubmitting}
+            className="btn"
+            style={{
+              background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%)',
+              color: 'white',
+              boxShadow: '0 4px 15px rgba(124, 58, 237, 0.4)',
+              border: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              fontWeight: 700,
+              padding: '0.6rem 1.25rem',
+              borderRadius: 'var(--radius-full)'
+            }}
+          >
+            {isAiAnalyzing ? (
+              <>
+                <span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>⏳</span>
+                <span>{dict.admin?.ai?.analyzing || 'Analyzing with Gemini...'}</span>
+              </>
+            ) : (
+              <>
+                <span>✨</span>
+                <span>{dict.admin?.ai?.autoFillBtn || 'Auto-Fill with AI ✨'}</span>
+              </>
+            )}
+          </button>
+        )}
+      </div>
+
+      {aiStatus && (
+        <div style={{
+          marginTop: '1.5rem',
+          padding: '0.75rem 1.25rem',
+          background: 'linear-gradient(90deg, rgba(79, 70, 229, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)',
+          border: '1px solid rgba(79, 70, 229, 0.3)',
+          borderRadius: 'var(--radius-md)',
+          color: 'var(--primary)',
+          fontWeight: 600,
+          fontSize: '0.9rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}>
+          <span>✨</span>
+          <span>{aiStatus}</span>
+        </div>
+      )}
+
+      <div className="admin-card" style={{ marginTop: '1.5rem', maxWidth: '800px' }}>
         <form onSubmit={handleSubmit}>
           
           <div className="form-group">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <label style={{ margin: 0 }}>{dict.admin.images} *</label>
+              {files.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleAiAutoFill}
+                  disabled={isAiAnalyzing || isSubmitting}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--primary)',
+                    fontWeight: 700,
+                    fontSize: '0.85rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem'
+                  }}
+                >
+                  <span>✨</span>
+                  <span>{isAiAnalyzing ? (dict.admin?.ai?.analyzing || 'Analyzing...') : (dict.admin?.ai?.autoFillBtn || 'Auto-Fill with AI ✨')}</span>
+                </button>
+              )}
+            </div>
+            <input type="file" multiple accept="image/*" onChange={handleFileChange} required className="form-control" />
+            <div className="grid" style={{ marginTop: '1rem' }}>
+              {files.map((file, i) => (
+                <div key={i} className="image-preview">
+                  <img src={URL.createObjectURL(file)} alt={`Preview ${i}`} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="form-group" style={{ marginTop: '1.5rem' }}>
             <label>{dict.admin.catalogs}</label>
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
               {catalogs.map((c: any) => (
@@ -152,19 +306,7 @@ export default function AdminNewProductClient({ dict }: { dict: any }) {
             <textarea className="form-control" rows={5} value={description} onChange={e => setDescription(e.target.value)}></textarea>
           </div>
 
-          <div className="form-group">
-            <label>{dict.admin.images}</label>
-            <input type="file" multiple accept="image/*" onChange={handleFileChange} required className="form-control" />
-            <div className="grid" style={{ marginTop: '1rem' }}>
-              {files.map((file, i) => (
-                <div key={i} className="image-preview">
-                  <img src={URL.createObjectURL(file)} alt={`Preview ${i}`} />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <button type="submit" className="btn" disabled={isSubmitting} style={{ marginTop: '1rem' }}>
+          <button type="submit" className="btn" disabled={isSubmitting || isAiAnalyzing} style={{ marginTop: '1rem' }}>
             {isSubmitting ? dict.admin.uploading : dict.admin.saveProduct}
           </button>
         </form>
