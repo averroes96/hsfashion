@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { track } from '@vercel/analytics';
 import VisualSearchModal from './VisualSearchModal';
 
 interface SearchBarProps {
@@ -12,6 +13,13 @@ export default function SearchBar({ dict, lang = 'fr' }: SearchBarProps) {
 
   const vs = dict?.visualSearch || {};
 
+  const handleOpen = () => {
+    setIsModalOpen(true);
+    try {
+      track('visual_search_modal_opened', { lang });
+    } catch {}
+  };
+
   return (
     <>
       <div
@@ -23,7 +31,7 @@ export default function SearchBar({ dict, lang = 'fr' }: SearchBarProps) {
       >
         <button
           type="button"
-          onClick={() => setIsModalOpen(true)}
+          onClick={handleOpen}
           className="hover-lift"
           title={vs.buttonTooltip || 'Search by Photo 📷'}
           style={{
