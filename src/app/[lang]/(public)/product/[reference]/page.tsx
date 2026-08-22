@@ -6,6 +6,7 @@ import WhatsAppButton from './WhatsAppButton';
 import { getDictionary, Locale } from '@/lib/dictionaries';
 import ProductTracker from '@/components/ProductTracker';
 import PublicHeader from '@/components/PublicHeader';
+import SimilarProductsCarousel from '@/components/SimilarProductsCarousel';
 
 export default async function ProductPage({ params }: { params: Promise<{ reference: string, lang: string }> }) {
   const { reference, lang } = await params;
@@ -135,6 +136,13 @@ export default async function ProductPage({ params }: { params: Promise<{ refere
               )}
             </div>
           </div>
+
+          {/* AI Recommended Similar Styles Carousel */}
+          <SimilarProductsCarousel
+            currentReference={product.reference}
+            lang={lang}
+            dict={dict}
+          />
         </div>
       </main>
     </>

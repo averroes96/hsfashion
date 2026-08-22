@@ -97,5 +97,11 @@
     "inquire": "Renseignez-vous",
     "tryAnother": "Essayer une autre photo",
     "close": "Fermer"
+  },
+  "similarProducts": {
+    "title": "Styles Similaires Recommandés par l'IA ✨",
+    "subtitle": "Découvrez d'autres modèles de notre collection avec des silhouettes et finitions similaires.",
+    "viewProduct": "Voir le produit",
+    "matchScore": "Correspondance"
   }
 }
