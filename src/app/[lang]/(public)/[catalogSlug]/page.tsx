@@ -51,12 +51,12 @@ export default async function CatalogPage({ params }: { params: Promise<{ catalo
       
       <main className="fade-in">
         {/* Hero Section for Catalog */}
-        <section style={{ padding: '4rem 0', textAlign: 'center' }}>
+        <section className="hero-section">
           <div className="container fade-in-up">
             <nav style={{ 
-              marginBottom: '1.5rem', 
+              marginBottom: '1rem', 
               color: 'var(--primary)', 
-              fontSize: '0.875rem', 
+              fontSize: '0.85rem', 
               fontWeight: 600,
               display: 'inline-flex',
               alignItems: 'center',
@@ -70,11 +70,11 @@ export default async function CatalogPage({ params }: { params: Promise<{ catalo
               <span>{catalog.name}</span>
             </nav>
             
-            <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>
+            <h1 className="hero-title">
               {catalog.name}
             </h1>
             {catalog.description && (
-              <p style={{ fontSize: '1.125rem', color: 'var(--text-muted)', maxWidth: '600px', margin: '0 auto' }}>
+              <p className="hero-subtitle">
                 {catalog.description}
               </p>
             )}
@@ -89,75 +89,70 @@ export default async function CatalogPage({ params }: { params: Promise<{ catalo
           )}
           
           {sortedFamilies.map((group, index) => (
-            <section key={group.family.id} style={{ marginBottom: '4rem' }} className={`fade-in-up delay-${index % 3 + 1}`}>
+            <section key={group.family.id} style={{ marginBottom: '3rem' }} className={`fade-in-up delay-${index % 3 + 1}`}>
               {/* Sticky Header */}
               <div style={{ 
                 position: 'sticky', 
-                top: '70px', 
+                top: '60px', 
                 zIndex: 90, 
-                background: 'rgba(248, 250, 252, 0.85)', 
+                background: 'rgba(248, 250, 252, 0.9)', 
                 backdropFilter: 'blur(12px)',
                 WebkitBackdropFilter: 'blur(12px)',
-                padding: '1rem 1.5rem',
+                padding: '0.75rem 1.25rem',
                 borderRadius: 'var(--radius-lg)',
                 border: '1px solid var(--border-color)',
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'space-between',
-                marginBottom: '1.5rem',
-                boxShadow: 'var(--shadow-sm)'
+                marginBottom: '1rem',
+                boxShadow: 'var(--shadow-sm)',
+                gap: '0.5rem'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <h2 style={{ fontSize: '1.5rem', margin: 0 }}>{group.family.name}</h2>
-                  <span className="badge" style={{ fontSize: '0.8rem' }}>
-                    {group.products.length} {dict.home.products}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <h2 style={{ fontSize: 'clamp(1.1rem, 3vw, 1.4rem)', margin: 0, fontWeight: 800 }}>{group.family.name}</h2>
+                  <span className="badge" style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}>
+                    {group.products.length}
                   </span>
                 </div>
-                <Link href={`/${lang}/${catalog.slug}/${group.family.slug}`} className="btn btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}>
+                <Link href={`/${lang}/${catalog.slug}/${group.family.slug}`} className="btn btn-outline" style={{ padding: '0.4rem 0.85rem', fontSize: '0.8rem', minHeight: '36px' }}>
                   {dict.catalog.viewAll} →
                 </Link>
               </div>
               
-              {/* Image Grid */}
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
-                gap: '1.5rem'
-              }}>
+              {/* Responsive Product Grid */}
+              <div className="product-card-grid">
                 {group.products.slice(0, 8).map((product: any) => {
                   const primaryImage = product.images[0];
                   return (
-                    <Link key={product.id} href={`/${lang}/product/${encodeURIComponent(product.reference)}`}>
-                      <div className="glass-card hover-lift" style={{ overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                        <div style={{ height: '300px', background: 'var(--border-color)', position: 'relative' }}>
-                          {primaryImage ? (
-                            <SmartImage 
-                              src={primaryImage.mediumUrl || primaryImage.thumbnailUrl} 
-                              alt={product.reference} 
-                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                              wrapperStyle={{ width: '100%', height: '100%' }}
-                            />
-                          ) : (
-                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-                              No Image
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div style={{ padding: '1rem', background: 'var(--surface)' }}>
-                          <h3 style={{ fontSize: '1.125rem', marginBottom: '0.25rem', fontWeight: 600 }}>{product.reference}</h3>
-                          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {product.details || "View details"}
-                          </p>
-                        </div>
+                    <Link key={product.id} href={`/${lang}/product/${encodeURIComponent(product.reference)}`} className="product-card">
+                      <div className="product-card-media">
+                        {primaryImage ? (
+                          <SmartImage 
+                            src={primaryImage.mediumUrl || primaryImage.thumbnailUrl} 
+                            alt={product.reference} 
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            wrapperStyle={{ width: '100%', height: '100%' }}
+                          />
+                        ) : (
+                          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                            No Image
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="product-card-body">
+                        <h3 className="product-card-title">{product.reference}</h3>
+                        <p className="product-card-subtitle">
+                          {product.details || "View details"}
+                        </p>
                       </div>
                     </Link>
-                  )
+                  );
                 })}
               </div>
 
               {group.products.length > 8 && (
-                <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+                <div style={{ textAlign: 'center', marginTop: '1.25rem' }}>
                   <Link href={`/${lang}/${catalog.slug}/${group.family.slug}`} className="btn btn-outline" style={{ background: 'var(--surface)' }}>
                     {dict.catalog.viewAll} ({group.products.length} {dict.home.products}) →
                   </Link>

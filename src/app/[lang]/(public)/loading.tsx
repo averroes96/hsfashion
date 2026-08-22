@@ -18,32 +18,28 @@ export default function HomeLoading() {
 
       <main className="fade-in">
         {/* Hero Skeleton */}
-        <section style={{ padding: 'var(--spacing-xl) 0', textAlign: 'center' }}>
+        <section className="hero-section">
           <div className="container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div className="skeleton-bg" style={{ width: '120px', height: '28px', borderRadius: 'var(--radius-full)', marginBottom: '1.5rem' }} />
-            <div className="skeleton-bg" style={{ width: '80%', maxWidth: '600px', height: '48px', borderRadius: 'var(--radius-md)', marginBottom: '1rem' }} />
-            <div className="skeleton-bg" style={{ width: '60%', maxWidth: '400px', height: '24px', borderRadius: 'var(--radius-sm)', marginBottom: '2.5rem' }} />
+            <div className="skeleton-bg" style={{ width: '120px', height: '28px', borderRadius: 'var(--radius-full)', marginBottom: '1rem' }} />
+            <div className="skeleton-bg" style={{ width: '80%', maxWidth: '500px', height: '44px', borderRadius: 'var(--radius-md)', marginBottom: '0.75rem' }} />
+            <div className="skeleton-bg" style={{ width: '60%', maxWidth: '350px', height: '20px', borderRadius: 'var(--radius-sm)', marginBottom: '1.75rem' }} />
             
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <div className="skeleton-bg" style={{ width: '150px', height: '40px', borderRadius: 'var(--radius-md)' }} />
-              <div className="skeleton-bg" style={{ width: '180px', height: '40px', borderRadius: 'var(--radius-md)' }} />
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <div className="skeleton-bg" style={{ width: '130px', height: '36px', borderRadius: 'var(--radius-md)' }} />
+              <div className="skeleton-bg" style={{ width: '150px', height: '36px', borderRadius: 'var(--radius-md)' }} />
             </div>
           </div>
         </section>
 
         {/* Bento Grid Skeleton */}
         <section className="container" style={{ paddingBottom: 'var(--spacing-xl)' }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-            gap: '1.5rem'
-          }}>
+          <div className="catalog-card-grid">
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={`catalog-skeleton-${i}`}
                 className="glass-card"
                 style={{
-                  height: '380px',
+                  height: 'clamp(280px, 45vw, 380px)',
                   display: 'flex',
                   flexDirection: 'column',
                   overflow: 'hidden',

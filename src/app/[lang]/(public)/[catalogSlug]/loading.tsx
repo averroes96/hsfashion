@@ -18,49 +18,45 @@ export default function CatalogLoading() {
 
       <main className="fade-in">
         {/* Catalog Hero Skeleton */}
-        <section style={{ padding: '4rem 0', textAlign: 'center' }}>
+        <section className="hero-section">
           <div className="container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div className="skeleton-bg" style={{ width: '160px', height: '32px', borderRadius: 'var(--radius-full)', marginBottom: '1.5rem' }} />
-            <div className="skeleton-bg" style={{ width: '300px', height: '48px', borderRadius: 'var(--radius-md)', marginBottom: '1rem' }} />
-            <div className="skeleton-bg" style={{ width: '450px', maxWidth: '80%', height: '20px', borderRadius: 'var(--radius-sm)' }} />
+            <div className="skeleton-bg" style={{ width: '140px', height: '28px', borderRadius: 'var(--radius-full)', marginBottom: '1rem' }} />
+            <div className="skeleton-bg" style={{ width: '260px', height: '40px', borderRadius: 'var(--radius-md)', marginBottom: '0.75rem' }} />
+            <div className="skeleton-bg" style={{ width: '380px', maxWidth: '80%', height: '18px', borderRadius: 'var(--radius-sm)' }} />
           </div>
         </section>
 
         {/* Family Sections Skeleton */}
         <div className="container" style={{ paddingBottom: 'var(--spacing-xl)' }}>
           {Array.from({ length: 2 }).map((_, fIndex) => (
-            <section key={`family-skel-${fIndex}`} style={{ marginBottom: '4rem' }}>
+            <section key={`family-skel-${fIndex}`} style={{ marginBottom: '3rem' }}>
               {/* Sticky Header Skeleton */}
               <div style={{
-                padding: '1rem',
+                padding: '0.75rem 1.25rem',
                 borderRadius: 'var(--radius-lg)',
                 border: '1px solid var(--border-color)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                marginBottom: '1.5rem',
-                background: 'rgba(248, 250, 252, 0.85)'
+                marginBottom: '1rem',
+                background: 'rgba(248, 250, 252, 0.9)'
               }}>
-                <div className="skeleton-bg" style={{ height: '30px', width: '160px', borderRadius: '4px' }} />
-                <div className="skeleton-bg" style={{ height: '36px', width: '100px', borderRadius: 'var(--radius-full)' }} />
+                <div className="skeleton-bg" style={{ height: '24px', width: '140px', borderRadius: '4px' }} />
+                <div className="skeleton-bg" style={{ height: '32px', width: '90px', borderRadius: 'var(--radius-full)' }} />
               </div>
 
               {/* Products Grid Skeleton */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                gap: '1.5rem'
-              }}>
+              <div className="product-card-grid">
                 {Array.from({ length: 4 }).map((_, pIndex) => (
                   <div
                     key={`prod-skel-${pIndex}`}
-                    className="glass-card"
-                    style={{ overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' }}
+                    className="product-card"
+                    style={{ overflow: 'hidden' }}
                   >
-                    <div className="skeleton-bg" style={{ height: '300px' }} />
-                    <div style={{ padding: '1rem', background: 'var(--surface)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      <div className="skeleton-bg" style={{ height: '20px', width: '120px', borderRadius: '4px' }} />
-                      <div className="skeleton-bg" style={{ height: '14px', width: '80px', borderRadius: '4px' }} />
+                    <div className="skeleton-bg product-card-media" />
+                    <div className="product-card-body" style={{ gap: '0.4rem' }}>
+                      <div className="skeleton-bg" style={{ height: '18px', width: '100px', borderRadius: '4px' }} />
+                      <div className="skeleton-bg" style={{ height: '12px', width: '70px', borderRadius: '4px' }} />
                     </div>
                   </div>
                 ))}

@@ -18,31 +18,27 @@ export default function FamilyLoading() {
 
       <main className="fade-in">
         {/* Family Header Skeleton */}
-        <section style={{ padding: '4rem 0', textAlign: 'center' }}>
+        <section className="hero-section">
           <div className="container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div className="skeleton-bg" style={{ width: '220px', height: '32px', borderRadius: 'var(--radius-full)', marginBottom: '1.5rem' }} />
-            <div className="skeleton-bg" style={{ width: '280px', height: '48px', borderRadius: 'var(--radius-md)', marginBottom: '1rem' }} />
-            <div className="skeleton-bg" style={{ width: '380px', maxWidth: '80%', height: '20px', borderRadius: 'var(--radius-sm)' }} />
+            <div className="skeleton-bg" style={{ width: '180px', height: '28px', borderRadius: 'var(--radius-full)', marginBottom: '1rem' }} />
+            <div className="skeleton-bg" style={{ width: '240px', height: '40px', borderRadius: 'var(--radius-md)', marginBottom: '0.75rem' }} />
+            <div className="skeleton-bg" style={{ width: '340px', maxWidth: '80%', height: '18px', borderRadius: 'var(--radius-sm)' }} />
           </div>
         </section>
 
         {/* Products Grid Skeleton */}
         <div className="container" style={{ paddingBottom: 'var(--spacing-xl)' }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: '1.5rem'
-          }}>
-            {Array.from({ length: 8 }).map((_, i) => (
+          <div className="product-card-grid">
+            {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={`family-prod-skel-${i}`}
-                className="glass-card"
-                style={{ overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' }}
+                className="product-card"
+                style={{ overflow: 'hidden' }}
               >
-                <div className="skeleton-bg" style={{ height: '240px' }} />
-                <div style={{ padding: '1rem', background: 'var(--surface)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <div className="skeleton-bg" style={{ height: '20px', width: '120px', borderRadius: '4px' }} />
-                  <div className="skeleton-bg" style={{ height: '14px', width: '90px', borderRadius: '4px' }} />
+                <div className="skeleton-bg product-card-media" />
+                <div className="product-card-body" style={{ gap: '0.4rem' }}>
+                  <div className="skeleton-bg" style={{ height: '18px', width: '100px', borderRadius: '4px' }} />
+                  <div className="skeleton-bg" style={{ height: '12px', width: '70px', borderRadius: '4px' }} />
                 </div>
               </div>
             ))}

@@ -51,7 +51,7 @@ export default function SearchBar({ dict, lang = 'fr' }: SearchBarProps) {
           }}
         >
           <span style={{ fontSize: '1.1rem' }}>📷</span>
-          <span style={{ display: 'none', md: 'inline' } as any} className="hide-mobile">
+          <span className="hide-mobile">
             {vs.photoSearch || 'Photo Search'}
           </span>
           <span

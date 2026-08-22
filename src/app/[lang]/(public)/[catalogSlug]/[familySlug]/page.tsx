@@ -68,12 +68,12 @@ export default async function FamilyPage({
       
       <main className="fade-in">
         {/* Header Section */}
-        <section style={{ padding: '4rem 0', textAlign: 'center' }}>
+        <section className="hero-section">
           <div className="container fade-in-up">
             <nav style={{ 
-              marginBottom: '1.5rem', 
+              marginBottom: '1rem', 
               color: 'var(--primary)', 
-              fontSize: '0.875rem', 
+              fontSize: '0.85rem', 
               fontWeight: 600,
               display: 'inline-flex',
               alignItems: 'center',
@@ -89,11 +89,11 @@ export default async function FamilyPage({
               <span>{family.name}</span>
             </nav>
             
-            <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>
+            <h1 className="hero-title">
               {family.name}
             </h1>
             {family.description && (
-              <p style={{ fontSize: '1.125rem', color: 'var(--text-muted)', maxWidth: '600px', margin: '0 auto' }}>
+              <p className="hero-subtitle">
                 {family.description}
               </p>
             )}
@@ -107,39 +107,34 @@ export default async function FamilyPage({
             </div>
           )}
 
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
-            gap: '1.5rem' 
-          }}>
+          <div className="product-card-grid">
             {products.map((product: any, index: number) => {
+              const primaryImage = product.images[0];
               return (
-                <Link key={product.id} href={`/${lang}/product/${encodeURIComponent(product.reference)}`} className={`fade-in-up delay-${index % 3 + 1}`}>
-                  <div className="glass-card hover-lift" style={{ overflow: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <div style={{ height: '240px', overflow: 'hidden' }}>
-                      {product.images[0] ? (
-                        <SmartImage 
-                          src={product.images[0].mediumUrl} 
-                          alt={product.reference} 
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                          wrapperStyle={{ width: '100%', height: '100%' }}
-                        />
-                      ) : (
-                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-                          No Image
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div style={{ padding: '1rem', background: 'var(--surface)' }}>
-                      <h3 style={{ fontSize: '1.125rem', marginBottom: '0.25rem', fontWeight: 600 }}>{product.reference}</h3>
-                      <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {product.details || "View details"}
-                      </p>
-                    </div>
+                <Link key={product.id} href={`/${lang}/product/${encodeURIComponent(product.reference)}`} className={`product-card fade-in-up delay-${index % 3 + 1}`}>
+                  <div className="product-card-media">
+                    {primaryImage ? (
+                      <SmartImage 
+                        src={primaryImage.mediumUrl || primaryImage.thumbnailUrl} 
+                        alt={product.reference} 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        wrapperStyle={{ width: '100%', height: '100%' }}
+                      />
+                    ) : (
+                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                        No Image
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="product-card-body">
+                    <h3 className="product-card-title">{product.reference}</h3>
+                    <p className="product-card-subtitle">
+                      {product.details || "View details"}
+                    </p>
                   </div>
                 </Link>
-              )
+              );
             })}
           </div>
 

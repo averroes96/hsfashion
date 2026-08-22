@@ -161,16 +161,16 @@ export default function SimilarProductsCarousel({
               key={`sim-skel-${i}`}
               className="glass-card"
               style={{
-                flex: '0 0 280px',
+                flex: '0 0 clamp(220px, 68vw, 280px)',
                 scrollSnapAlign: 'start',
                 borderRadius: 'var(--radius-lg)',
                 overflow: 'hidden',
-                height: '340px',
+                height: '320px',
                 display: 'flex',
                 flexDirection: 'column',
               }}
             >
-              <div className="skeleton-bg" style={{ height: '200px' }} />
+              <div className="skeleton-bg" style={{ height: '180px' }} />
               <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <div className="skeleton-bg" style={{ height: '20px', width: '60%', borderRadius: '4px' }} />
                 <div className="skeleton-bg" style={{ height: '14px', width: '40%', borderRadius: '4px' }} />
@@ -191,7 +191,7 @@ export default function SimilarProductsCarousel({
                 href={`/${lang}/product/${encodeURIComponent(product.reference)}`}
                 className="glass-card hover-lift"
                 style={{
-                  flex: '0 0 280px',
+                  flex: '0 0 clamp(220px, 68vw, 280px)',
                   scrollSnapAlign: 'start',
                   display: 'flex',
                   flexDirection: 'column',

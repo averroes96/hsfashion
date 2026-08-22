@@ -19,27 +19,27 @@ export default function ProductLoading() {
       <main className="fade-in">
         <div className="container" style={{ marginTop: 'var(--spacing-lg)', marginBottom: 'var(--spacing-xl)' }}>
           {/* Breadcrumb Skeleton */}
-          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
+          <nav className="breadcrumb-nav">
             <div className="skeleton-bg" style={{ width: '90px', height: '20px', borderRadius: '4px' }} />
             <div className="skeleton-bg" style={{ width: '20px', height: '20px', borderRadius: '4px' }} />
             <div className="skeleton-bg" style={{ width: '100px', height: '20px', borderRadius: '4px' }} />
             <div className="skeleton-bg" style={{ width: '20px', height: '20px', borderRadius: '4px' }} />
             <div className="skeleton-bg" style={{ width: '120px', height: '20px', borderRadius: '4px' }} />
-          </div>
+          </nav>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '4rem', alignItems: 'start' }}>
+          <div className="product-detail-layout">
             {/* Gallery Skeleton */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div className="skeleton-bg" style={{ height: '480px', borderRadius: 'var(--radius-lg)' }} />
+              <div className="skeleton-bg" style={{ height: '350px', borderRadius: 'var(--radius-lg)' }} />
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={`thumb-${i}`} className="skeleton-bg" style={{ width: '80px', height: '80px', borderRadius: 'var(--radius-sm)' }} />
+                  <div key={`thumb-${i}`} className="skeleton-bg" style={{ width: '70px', height: '70px', borderRadius: 'var(--radius-sm)' }} />
                 ))}
               </div>
             </div>
 
             {/* Info Glass Card Skeleton */}
-            <div className="glass-card" style={{ padding: '2.5rem', background: 'var(--surface)', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div className="glass-card" style={{ padding: 'clamp(1.25rem, 3vw, 2.5rem)', background: 'var(--surface)', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div className="skeleton-bg" style={{ height: '40px', width: '200px', borderRadius: '4px' }} />
                 <div className="skeleton-bg" style={{ height: '28px', width: '90px', borderRadius: 'var(--radius-full)' }} />

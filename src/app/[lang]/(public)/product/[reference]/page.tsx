@@ -43,16 +43,7 @@ export default async function ProductPage({ params }: { params: Promise<{ refere
       
       <main className="fade-in">
         <div className="container" style={{ marginTop: 'var(--spacing-lg)', marginBottom: 'var(--spacing-xl)' }}>
-          <nav style={{ 
-            marginBottom: '2rem', 
-            color: 'var(--text-muted)', 
-            fontSize: '0.875rem', 
-            fontWeight: 600,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            flexWrap: 'wrap'
-          }}>
+          <nav className="breadcrumb-nav">
             <Link href={`/${lang}`} style={{ color: 'var(--primary)' }}>{dict.nav.collections}</Link>
             <span>/</span>
             {firstCatalog ? (
@@ -68,38 +59,38 @@ export default async function ProductPage({ params }: { params: Promise<{ refere
                 <span>/</span>
               </>
             )}
-            <span style={{ color: 'var(--text-main)' }}>{product.reference}</span>
+            <span style={{ color: 'var(--text-main)', fontWeight: 700 }}>{product.reference}</span>
           </nav>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '4rem', alignItems: 'start' }}>
-            {/* Left Side: Image Gallery */}
+          <div className="product-detail-layout">
+            {/* Image Gallery */}
             <ImageGallery images={product.images} />
 
-            {/* Right Side: Product Details */}
-            <div className="glass-card fade-in delay-1" style={{ padding: '2.5rem', background: 'var(--surface)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                <h1 style={{ fontSize: '2.5rem', lineHeight: 1.2, margin: 0 }}>
+            {/* Product Details Card */}
+            <div className="glass-card fade-in delay-1" style={{ padding: 'clamp(1.25rem, 3vw, 2.5rem)', background: 'var(--surface)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', lineHeight: 1.2, margin: 0, fontWeight: 800 }}>
                   {product.reference}
                 </h1>
-                <div className="badge" style={{ marginTop: '0.5rem' }}>
+                <div className="badge" style={{ marginTop: '0.25rem' }}>
                   {product.family.name}
                 </div>
               </div>
               
               {product.details && (
-                <div style={{ paddingBottom: '2rem', borderBottom: '1px solid var(--border-color)', marginBottom: '2rem' }}>
-                  <p style={{ fontSize: '1.125rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
+                <div style={{ paddingBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', marginBottom: '1.5rem' }}>
+                  <p style={{ fontSize: 'clamp(0.95rem, 2vw, 1.125rem)', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
                     {product.details}
                   </p>
                 </div>
               )}
               
               {product.description && (
-                <div style={{ marginBottom: '3rem' }}>
+                <div style={{ marginBottom: '2rem' }}>
                   <h3 style={{ 
-                    fontSize: '1rem', 
+                    fontSize: '0.95rem', 
                     fontWeight: 700, 
-                    marginBottom: '1rem', 
+                    marginBottom: '0.75rem', 
                     color: 'var(--text-main)',
                     display: 'flex',
                     alignItems: 'center',
@@ -111,9 +102,10 @@ export default async function ProductPage({ params }: { params: Promise<{ refere
                   <div style={{ 
                     color: 'var(--text-muted)', 
                     whiteSpace: 'pre-line', 
-                    lineHeight: 1.8,
+                    lineHeight: 1.7,
+                    fontSize: '0.95rem',
                     background: 'var(--bg-color)',
-                    padding: '1.5rem',
+                    padding: '1.25rem',
                     borderRadius: 'var(--radius-md)',
                     border: '1px solid var(--border-color)'
                   }}>
@@ -129,7 +121,7 @@ export default async function ProductPage({ params }: { params: Promise<{ refere
                   reference={product.reference} 
                 />
               ) : (
-                <button className="btn btn-primary" style={{ width: '100%', padding: '1rem 1.5rem', fontSize: '1.125rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
+                <button className="btn btn-primary" style={{ width: '100%', padding: '0.9rem 1.5rem', fontSize: '1.05rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>chat</span>
                   {dict.product.inquire}
                 </button>

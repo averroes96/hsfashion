@@ -60,50 +60,38 @@ export default async function Home({
 
       <main className="fade-in">
         {/* Hero Section */}
-        <section style={{ padding: 'var(--spacing-xl) 0', textAlign: 'center' }}>
+        <section className="hero-section">
           <div className="container fade-in-up">
-            <div className="badge" style={{ marginBottom: '1.5rem' }}>
+            <div className="badge" style={{ marginBottom: '1rem' }}>
               {dict.home.collections}
             </div>
 
-            <h1 style={{
-              fontSize: 'clamp(2rem, 4vw, 3rem)',
-              lineHeight: 1.2,
-              marginBottom: '1.5rem',
-              fontWeight: 900,
-              maxWidth: '800px',
-              margin: '0 auto 1.5rem auto'
-            }}>
+            <h1 className="hero-title">
               {dict.home.title}
             </h1>
 
-            <p style={{ 
-              color: 'var(--text-muted)', 
-              fontSize: '1.125rem', 
-              maxWidth: '600px', 
-              margin: '0 auto 2.5rem auto' 
-            }}>
+            <p className="hero-subtitle" style={{ marginBottom: '1.75rem' }}>
               {dict.home.subtitle}
             </p>
 
             <div style={{
               display: 'flex',
-              gap: '1rem',
+              gap: '0.75rem',
               justifyContent: 'center',
               flexWrap: 'wrap'
             }}>
               {settings?.phoneNumber && (
-                <div className="glass-card" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600 }}>
+                <div className="glass-card" style={{ padding: '0.4rem 0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, fontSize: '0.85rem' }}>
                   <span style={{ color: 'var(--primary)' }}>📞</span> <span dir="ltr">{settings.phoneNumber}</span>
                 </div>
               )}
               {settings?.email && (
-                <div className="glass-card" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600 }}>
+                <div className="glass-card" style={{ padding: '0.4rem 0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, fontSize: '0.85rem' }}>
                   <span style={{ color: 'var(--primary)' }}>✉️</span> <span>{settings.email}</span>
                 </div>
               )}
               {settings?.address && (
-                <div className="glass-card" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600 }}>
+                <div className="glass-card" style={{ padding: '0.4rem 0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, fontSize: '0.85rem' }}>
                   <span style={{ color: 'var(--primary)' }}>📍</span> <span>{settings.address}</span>
                 </div>
               )}
@@ -113,11 +101,7 @@ export default async function Home({
 
         {/* Catalogs Section (Bento Grid) */}
         <section className="container" style={{ paddingBottom: 'var(--spacing-xl)' }}>
-          <div className="grid fade-in-up delay-1" style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-            gap: '1.5rem'
-          }}>
+          <div className="catalog-card-grid fade-in-up delay-1">
             {catalogs.map((catalog: any) => {
               let bgImage = null;
               for (const product of catalog.products) {
@@ -132,7 +116,7 @@ export default async function Home({
                   <div
                     className="glass-card hover-lift"
                     style={{
-                      height: '380px',
+                      height: 'clamp(280px, 45vw, 380px)',
                       display: 'flex',
                       flexDirection: 'column',
                       overflow: 'hidden',
