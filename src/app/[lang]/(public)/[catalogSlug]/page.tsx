@@ -106,7 +106,7 @@ export default async function CatalogPage({ params }: { params: Promise<{ catalo
                 background: 'rgba(248, 250, 252, 0.85)', 
                 backdropFilter: 'blur(12px)',
                 WebkitBackdropFilter: 'blur(12px)',
-                padding: '1rem',
+                padding: '1rem 1.5rem',
                 borderRadius: 'var(--radius-lg)',
                 border: '1px solid var(--border-color)',
                 display: 'flex', 
@@ -115,7 +115,12 @@ export default async function CatalogPage({ params }: { params: Promise<{ catalo
                 marginBottom: '1.5rem',
                 boxShadow: 'var(--shadow-sm)'
               }}>
-                <h2 style={{ fontSize: '1.5rem', margin: 0 }}>{group.family.name}</h2>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <h2 style={{ fontSize: '1.5rem', margin: 0 }}>{group.family.name}</h2>
+                  <span className="badge" style={{ fontSize: '0.8rem' }}>
+                    {group.products.length} {dict.home.products}
+                  </span>
+                </div>
                 <Link href={`/${lang}/${catalog.slug}/${group.family.slug}`} className="btn btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}>
                   {dict.catalog.viewAll} →
                 </Link>
@@ -127,7 +132,7 @@ export default async function CatalogPage({ params }: { params: Promise<{ catalo
                 gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
                 gap: '1.5rem'
               }}>
-                {group.products.map((product: any) => {
+                {group.products.slice(0, 8).map((product: any) => {
                   const primaryImage = product.images[0];
                   return (
                     <Link key={product.id} href={`/${lang}/product/${encodeURIComponent(product.reference)}`}>
@@ -158,6 +163,14 @@ export default async function CatalogPage({ params }: { params: Promise<{ catalo
                   )
                 })}
               </div>
+
+              {group.products.length > 8 && (
+                <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+                  <Link href={`/${lang}/${catalog.slug}/${group.family.slug}`} className="btn btn-outline" style={{ background: 'var(--surface)' }}>
+                    {dict.catalog.viewAll} ({group.products.length} {dict.home.products}) →
+                  </Link>
+                </div>
+              )}
             </section>
           ))}
         </div>

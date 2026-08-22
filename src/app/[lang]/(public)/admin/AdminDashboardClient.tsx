@@ -14,6 +14,7 @@ export default function AdminDashboardClient({ dict }: { dict: any }) {
     totalFamilies: 0,
     topProducts: []
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   // Store Settings state
   const [storePhoneNumber, setStorePhoneNumber] = useState('');
@@ -27,9 +28,14 @@ export default function AdminDashboardClient({ dict }: { dict: any }) {
   }, []);
 
   const fetchStats = async () => {
-    const res = await fetch('/api/admin/stats');
-    if (res.ok) {
-      setStats(await res.json());
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/admin/stats');
+      if (res.ok) {
+        setStats(await res.json());
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -69,26 +75,56 @@ export default function AdminDashboardClient({ dict }: { dict: any }) {
       <div className="admin-card" style={{ marginTop: '2rem' }}>
         <h2>{dict.admin.quickStats}</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginTop: '1.5rem' }}>
-          <div style={{ padding: '1.5rem', background: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
-            <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--text-main)', lineHeight: 1.2 }}>{stats.totalProducts}</div>
-            <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>{dict.admin.totalProducts}</div>
-          </div>
-          <div style={{ padding: '1.5rem', background: 'var(--primary-light)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
-            <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--primary-hover)', lineHeight: 1.2 }}>{stats.activeProducts}</div>
-            <div style={{ color: 'var(--primary-hover)', fontSize: '0.9rem', fontWeight: 600 }}>{dict.admin.activeProducts}</div>
-          </div>
-          <div style={{ padding: '1.5rem', background: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
-            <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--text-main)', lineHeight: 1.2 }}>{stats.totalCatalogs}</div>
-            <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>{dict.admin.totalCatalogs}</div>
-          </div>
-          <div style={{ padding: '1.5rem', background: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
-            <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--text-main)', lineHeight: 1.2 }}>{stats.totalFamilies}</div>
-            <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>{dict.admin.totalFamilies}</div>
-          </div>
+          {isLoading ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <div key={`stat-skeleton-${i}`} style={{ padding: '1.5rem', background: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                <div className="skeleton-bg" style={{ height: '40px', width: '60px', borderRadius: '4px' }} />
+                <div className="skeleton-bg" style={{ height: '18px', width: '110px', borderRadius: '4px' }} />
+              </div>
+            ))
+          ) : (
+            <>
+              <div style={{ padding: '1.5rem', background: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+                <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--text-main)', lineHeight: 1.2 }}>{stats.totalProducts}</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>{dict.admin.totalProducts}</div>
+              </div>
+              <div style={{ padding: '1.5rem', background: 'var(--primary-light)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+                <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--primary-hover)', lineHeight: 1.2 }}>{stats.activeProducts}</div>
+                <div style={{ color: 'var(--primary-hover)', fontSize: '0.9rem', fontWeight: 600 }}>{dict.admin.activeProducts}</div>
+              </div>
+              <div style={{ padding: '1.5rem', background: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+                <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--text-main)', lineHeight: 1.2 }}>{stats.totalCatalogs}</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>{dict.admin.totalCatalogs}</div>
+              </div>
+              <div style={{ padding: '1.5rem', background: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+                <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--text-main)', lineHeight: 1.2 }}>{stats.totalFamilies}</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>{dict.admin.totalFamilies}</div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
-      {stats.topProducts && stats.topProducts.length > 0 && (
+      {isLoading ? (
+        <div className="admin-card" style={{ marginTop: '2rem' }}>
+          <div className="skeleton-bg" style={{ height: '24px', width: '200px', borderRadius: '4px' }} />
+          <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={`leaderboard-skeleton-${i}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <div className="skeleton-bg" style={{ width: '30px', height: '30px', borderRadius: '50%' }} />
+                  <div className="skeleton-bg" style={{ width: '40px', height: '40px', borderRadius: '4px' }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                    <div className="skeleton-bg" style={{ height: '18px', width: '100px', borderRadius: '4px' }} />
+                    <div className="skeleton-bg" style={{ height: '14px', width: '60px', borderRadius: '4px' }} />
+                  </div>
+                </div>
+                <div className="skeleton-bg" style={{ height: '20px', width: '40px', borderRadius: '4px' }} />
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : stats.topProducts && stats.topProducts.length > 0 ? (
         <div className="admin-card" style={{ marginTop: '2rem' }}>
           <h2>{dict.admin.topProducts || "Top Products by Views"}</h2>
           <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -128,7 +164,7 @@ export default function AdminDashboardClient({ dict }: { dict: any }) {
             ))}
           </div>
         </div>
-      )}
+      ) : null}
       
       <div className="admin-card" style={{ marginTop: '2rem' }}>
         <h2>{dict.admin.storeSettings}</h2>

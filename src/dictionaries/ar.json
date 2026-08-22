@@ -67,5 +67,14 @@
     "somethingWentWrong": "حدث خطأ ما",
     "signingIn": "جاري تسجيل الدخول...",
     "signIn": "تسجيل الدخول"
+  },
+  "pagination": {
+    "previous": "السابق",
+    "next": "التالي",
+    "page": "صفحة",
+    "of": "من",
+    "showing": "عرض",
+    "to": "إلى",
+    "results": "نتائج"
   }
 }

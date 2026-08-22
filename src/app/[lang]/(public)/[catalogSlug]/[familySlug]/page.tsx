@@ -4,37 +4,58 @@ import { notFound } from 'next/navigation';
 import { getDictionary, Locale } from '@/lib/dictionaries';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import SmartImage from '@/components/SmartImage';
+import Pagination from '@/components/Pagination';
 
-export default async function FamilyPage({ params }: { params: Promise<{ catalogSlug: string, familySlug: string, lang: string }> }) {
+const PRODUCTS_PER_PAGE = 12;
+
+export default async function FamilyPage({ 
+  params, 
+  searchParams 
+}: { 
+  params: Promise<{ catalogSlug: string, familySlug: string, lang: string }>;
+  searchParams: Promise<{ page?: string }>;
+}) {
   const { catalogSlug, familySlug, lang } = await params;
+  const { page } = await searchParams;
+  const currentPage = Math.max(1, parseInt(page || '1', 10) || 1);
   const dict = await getDictionary(lang as Locale);
   
-  const family = await prisma.family.findUnique({
-    where: { slug: familySlug },
-  });
-
-  const catalog = await prisma.catalog.findUnique({
-    where: { slug: catalogSlug },
-  });
+  const [family, catalog] = await Promise.all([
+    prisma.family.findUnique({
+      where: { slug: familySlug },
+    }),
+    prisma.catalog.findUnique({
+      where: { slug: catalogSlug },
+    })
+  ]);
 
   if (!family || !catalog) notFound();
 
-  const products = await prisma.product.findMany({
-    where: {
-      isActive: true,
-      familyId: family.id,
-      catalogs: {
-        some: { slug: catalogSlug }
-      }
-    },
-    orderBy: { createdAt: 'desc' },
-    include: {
-      images: {
-        where: { isPrimary: true },
-        take: 1
-      }
+  const whereCondition = {
+    isActive: true,
+    familyId: family.id,
+    catalogs: {
+      some: { slug: catalogSlug }
     }
-  });
+  };
+
+  const [totalProducts, products] = await Promise.all([
+    prisma.product.count({ where: whereCondition }),
+    prisma.product.findMany({
+      where: whereCondition,
+      orderBy: { createdAt: 'desc' },
+      skip: (currentPage - 1) * PRODUCTS_PER_PAGE,
+      take: PRODUCTS_PER_PAGE,
+      include: {
+        images: {
+          where: { isPrimary: true },
+          take: 1
+        }
+      }
+    })
+  ]);
+
+  const totalPages = Math.ceil(totalProducts / PRODUCTS_PER_PAGE);
 
   return (
     <>
@@ -129,6 +150,14 @@ export default async function FamilyPage({ params }: { params: Promise<{ catalog
               )
             })}
           </div>
+
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            basePath={`/${lang}/${catalogSlug}/${familySlug}`}
+            dict={dict}
+            lang={lang}
+          />
         </div>
       </main>
     </>

@@ -3,6 +3,10 @@ import { useState, useEffect } from 'react';
 
 export default function AdminCatalogsClient({ dict }: { dict: any }) {
   const [catalogs, setCatalogs] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
   const [catalogName, setCatalogName] = useState('');
   const [catalogDescription, setCatalogDescription] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -14,8 +18,13 @@ export default function AdminCatalogsClient({ dict }: { dict: any }) {
   }, []);
 
   const fetchCatalogs = async () => {
-    const res = await fetch('/api/admin/catalogs');
-    if (res.ok) setCatalogs(await res.json());
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/admin/catalogs');
+      if (res.ok) setCatalogs(await res.json());
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const generateSlug = (name: string) => {
@@ -88,6 +97,11 @@ export default function AdminCatalogsClient({ dict }: { dict: any }) {
     fetchCatalogs();
   };
 
+  const totalPages = Math.ceil(catalogs.length / pageSize) || 1;
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedCatalogs = catalogs.slice(startIndex, endIndex);
+
   return (
     <div>
       <h1>{dict.admin.catalogsList}</h1>
@@ -120,42 +134,66 @@ export default function AdminCatalogsClient({ dict }: { dict: any }) {
             </tr>
           </thead>
           <tbody>
-            {catalogs.map((catalog, index) => (
-              <tr key={catalog.id}>
-                <td>
-                  <button onClick={() => moveOrder(index, 'up')} disabled={index === 0} style={{ cursor: 'pointer', background: 'none', border: 'none', fontSize: '1.25rem', padding: '0 0.5rem', color: index === 0 ? 'var(--border-color)' : 'var(--text-main)' }}>↑</button>
-                  <button onClick={() => moveOrder(index, 'down')} disabled={index === catalogs.length - 1} style={{ cursor: 'pointer', background: 'none', border: 'none', fontSize: '1.25rem', padding: '0 0.5rem', color: index === catalogs.length - 1 ? 'var(--border-color)' : 'var(--text-main)' }}>↓</button>
-                </td>
-                <td style={{ fontWeight: 600 }}>
-                  {editingId === catalog.id ? (
-                    <input className="form-control" value={editName} onChange={e => setEditName(e.target.value)} />
-                  ) : (
-                    catalog.name
-                  )}
-                </td>
-                <td>
-                  {editingId === catalog.id ? (
-                    <input className="form-control" value={editDescription} onChange={e => setEditDescription(e.target.value)} />
-                  ) : (
-                    <span style={{ color: 'var(--text-muted)' }}>{catalog.description || '-'}</span>
-                  )}
-                </td>
-                <td style={{ textAlign: 'right' }}>
-                  {editingId === catalog.id ? (
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <tr key={`skeleton-${i}`}>
+                  <td>
+                    <div className="skeleton-bg" style={{ height: '24px', width: '50px', borderRadius: '4px' }} />
+                  </td>
+                  <td>
+                    <div className="skeleton-bg" style={{ height: '20px', width: '130px', borderRadius: '4px' }} />
+                  </td>
+                  <td>
+                    <div className="skeleton-bg" style={{ height: '20px', width: '180px', borderRadius: '4px' }} />
+                  </td>
+                  <td style={{ textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                      <button onClick={() => handleUpdate(catalog.id, catalog.sortOrder)} className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}>{dict.admin.update}</button>
-                      <button onClick={() => setEditingId(null)} className="btn btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}>{dict.admin.cancel}</button>
+                      <div className="skeleton-bg" style={{ height: '36px', width: '70px', borderRadius: 'var(--radius-full)' }} />
+                      <div className="skeleton-bg" style={{ height: '36px', width: '80px', borderRadius: 'var(--radius-full)' }} />
                     </div>
-                  ) : (
-                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                      <button onClick={() => startEdit(catalog)} className="btn btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}>{dict.admin.edit}</button>
-                      <button onClick={() => handleDelete(catalog.id)} className="btn btn-danger" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}>{dict.admin.delete}</button>
-                    </div>
-                  )}
-                </td>
-              </tr>
-            ))}
-            {catalogs.length === 0 && (
+                  </td>
+                </tr>
+              ))
+            ) : paginatedCatalogs.length > 0 ? (
+              paginatedCatalogs.map((catalog, localIndex) => {
+                const globalIndex = startIndex + localIndex;
+                return (
+                  <tr key={catalog.id}>
+                    <td>
+                      <button onClick={() => moveOrder(globalIndex, 'up')} disabled={globalIndex === 0} style={{ cursor: 'pointer', background: 'none', border: 'none', fontSize: '1.25rem', padding: '0 0.5rem', color: globalIndex === 0 ? 'var(--border-color)' : 'var(--text-main)' }}>↑</button>
+                      <button onClick={() => moveOrder(globalIndex, 'down')} disabled={globalIndex === catalogs.length - 1} style={{ cursor: 'pointer', background: 'none', border: 'none', fontSize: '1.25rem', padding: '0 0.5rem', color: globalIndex === catalogs.length - 1 ? 'var(--border-color)' : 'var(--text-main)' }}>↓</button>
+                    </td>
+                    <td style={{ fontWeight: 600 }}>
+                      {editingId === catalog.id ? (
+                        <input className="form-control" value={editName} onChange={e => setEditName(e.target.value)} />
+                      ) : (
+                        catalog.name
+                      )}
+                    </td>
+                    <td>
+                      {editingId === catalog.id ? (
+                        <input className="form-control" value={editDescription} onChange={e => setEditDescription(e.target.value)} />
+                      ) : (
+                        <span style={{ color: 'var(--text-muted)' }}>{catalog.description || '-'}</span>
+                      )}
+                    </td>
+                    <td style={{ textAlign: 'right' }}>
+                      {editingId === catalog.id ? (
+                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                          <button onClick={() => handleUpdate(catalog.id, catalog.sortOrder)} className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}>{dict.admin.update}</button>
+                          <button onClick={() => setEditingId(null)} className="btn btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}>{dict.admin.cancel}</button>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                          <button onClick={() => startEdit(catalog)} className="btn btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}>{dict.admin.edit}</button>
+                          <button onClick={() => handleDelete(catalog.id)} className="btn btn-danger" style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}>{dict.admin.delete}</button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
               <tr>
                 <td colSpan={4} style={{ padding: '3rem 0', textAlign: 'center', color: 'var(--text-muted)' }}>
                   {dict.admin.noCatalogs}
@@ -164,6 +202,87 @@ export default function AdminCatalogsClient({ dict }: { dict: any }) {
             )}
           </tbody>
         </table>
+
+        {/* Pagination Footer */}
+        {!isLoading && catalogs.length > 0 && (
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            marginTop: '1.5rem', 
+            paddingTop: '1.5rem', 
+            borderTop: '1px solid var(--border-color)',
+            flexWrap: 'wrap',
+            gap: '1rem'
+          }}>
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+              {dict?.pagination?.showing || 'Showing'} {startIndex + 1} {dict?.pagination?.to || 'to'} {Math.min(endIndex, catalogs.length)} {dict?.pagination?.of || 'of'} {catalogs.length} {dict?.pagination?.results || 'catalogs'}
+            </div>
+
+            {totalPages > 1 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="btn btn-outline"
+                  style={{
+                    padding: '0.4rem 0.8rem',
+                    fontSize: '0.875rem',
+                    borderRadius: 'var(--radius-full)',
+                    opacity: currentPage === 1 ? 0.4 : 1,
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {dict?.pagination?.previous || 'Previous'}
+                </button>
+
+                <div style={{ display: 'flex', gap: '0.25rem' }}>
+                  {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setCurrentPage(p)}
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: 'var(--radius-full)',
+                        border: p === currentPage ? 'none' : '1px solid var(--border-color)',
+                        background: p === currentPage ? 'var(--primary)' : 'var(--surface)',
+                        color: p === currentPage ? 'white' : 'var(--text-main)',
+                        fontWeight: p === currentPage ? 700 : 500,
+                        fontSize: '0.875rem',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="btn btn-outline"
+                  style={{
+                    padding: '0.4rem 0.8rem',
+                    fontSize: '0.875rem',
+                    borderRadius: 'var(--radius-full)',
+                    opacity: currentPage === totalPages ? 0.4 : 1,
+                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {dict?.pagination?.next || 'Next'}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

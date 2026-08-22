@@ -67,5 +67,14 @@
     "somethingWentWrong": "Quelque chose s'est mal passé",
     "signingIn": "Connexion en cours...",
     "signIn": "Se Connecter"
+  },
+  "pagination": {
+    "previous": "Précédent",
+    "next": "Suivant",
+    "page": "Page",
+    "of": "sur",
+    "showing": "Affichage de",
+    "to": "à",
+    "results": "résultats"
   }
 }

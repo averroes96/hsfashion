@@ -3,19 +3,50 @@ import Link from 'next/link';
 import { getDictionary, Locale } from '@/lib/dictionaries';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import SmartImage from '@/components/SmartImage';
+import Pagination from '@/components/Pagination';
 
-export default async function Home({ params }: { params: Promise<{ lang: string }> }) {
+const CATALOGS_PER_PAGE = 6;
+
+export default async function Home({ 
+  params, 
+  searchParams 
+}: { 
+  params: Promise<{ lang: string }>;
+  searchParams: Promise<{ page?: string }>;
+}) {
   const { lang } = await params;
+  const { page } = await searchParams;
+  const currentPage = Math.max(1, parseInt(page || '1', 10) || 1);
   const dict = await getDictionary(lang as Locale);
 
-  const catalogs = await prisma.catalog.findMany({
-    orderBy: { sortOrder: 'asc' },
-    include: { products: { include: { images: { orderBy: { sortOrder: 'asc' } } } } }
-  });
+  const whereCondition = {
+    products: {
+      some: {
+        isActive: true
+      }
+    }
+  };
 
-  const settings = await prisma.storeSettings.findUnique({
-    where: { id: 'default' }
-  });
+  const [totalCatalogs, catalogs, settings] = await Promise.all([
+    prisma.catalog.count({ where: whereCondition }),
+    prisma.catalog.findMany({
+      where: whereCondition,
+      orderBy: { sortOrder: 'asc' },
+      skip: (currentPage - 1) * CATALOGS_PER_PAGE,
+      take: CATALOGS_PER_PAGE,
+      include: {
+        products: {
+          where: { isActive: true },
+          include: { images: { orderBy: { sortOrder: 'asc' } } }
+        }
+      }
+    }),
+    prisma.storeSettings.findUnique({
+      where: { id: 'default' }
+    })
+  ]);
+
+  const totalPages = Math.ceil(totalCatalogs / CATALOGS_PER_PAGE);
 
   return (
     <>
@@ -171,6 +202,14 @@ export default async function Home({ params }: { params: Promise<{ lang: string 
               </div>
             )}
           </div>
+
+          <Pagination 
+            currentPage={currentPage}
+            totalPages={totalPages}
+            basePath={`/${lang}`}
+            dict={dict}
+            lang={lang}
+          />
         </section>
       </main>
     </>
