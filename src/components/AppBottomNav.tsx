@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { track } from '@vercel/analytics';
 import VisualSearchModal from './VisualSearchModal';
+import { useCart } from '@/context/CartContext';
 
 interface AppBottomNavProps {
   lang: string;
@@ -15,6 +16,7 @@ export default function AppBottomNav({ lang, dict, phoneNumber }: AppBottomNavPr
   const pathname = usePathname();
   const router = useRouter();
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const { openCart, totalCartons, totalItems } = useCart();
 
   // Hide bottom nav on admin routes
   if (pathname?.includes('/admin')) {
@@ -117,7 +119,58 @@ export default function AppBottomNav({ lang, dict, phoneNumber }: AppBottomNavPr
           </span>
         </div>
 
-        {/* Tab 4: Language Switcher */}
+        {/* Tab 4: Cart & Order Drawer */}
+        <button
+          type="button"
+          onClick={openCart}
+          className="app-tap-target"
+          style={{
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '2px',
+            background: 'transparent',
+            border: 'none',
+            color: totalItems > 0 ? 'var(--primary)' : 'var(--text-muted)',
+            fontSize: '0.72rem',
+            fontWeight: totalItems > 0 ? 700 : 500,
+            cursor: 'pointer',
+            padding: 0,
+            minWidth: '54px',
+          }}
+        >
+          <div style={{ position: 'relative' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '1.4rem' }}>
+              shopping_bag
+            </span>
+            {totalItems > 0 && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '-4px',
+                  right: isArabic ? 'auto' : '-8px',
+                  left: isArabic ? '-8px' : 'auto',
+                  background: 'var(--primary)',
+                  color: 'white',
+                  borderRadius: '999px',
+                  fontSize: '0.65rem',
+                  fontWeight: 900,
+                  padding: '1px 4px',
+                  minWidth: '16px',
+                  textAlign: 'center',
+                  lineHeight: 1.2,
+                  boxShadow: '0 2px 4px rgba(79, 70, 229, 0.4)',
+                }}
+              >
+                {totalCartons}
+              </span>
+            )}
+          </div>
+          <span>{isArabic ? 'الطلبية' : 'Commande'}</span>
+        </button>
+
+        {/* Tab 5: Language Switcher */}
         <button
           type="button"
           onClick={handleSwitchLanguage}

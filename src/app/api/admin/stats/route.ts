@@ -5,11 +5,21 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const [totalProducts, activeProducts, totalCatalogs, totalFamilies, topProducts] = await Promise.all([
+    const [
+      totalProducts,
+      activeProducts,
+      totalCatalogs,
+      totalFamilies,
+      totalOrders,
+      pendingOrders,
+      topProducts,
+    ] = await Promise.all([
       prisma.product.count(),
       prisma.product.count({ where: { isActive: true } }),
       prisma.catalog.count(),
       prisma.family.count(),
+      prisma.order.count(),
+      prisma.order.count({ where: { status: 'PENDING' } }),
       prisma.product.findMany({
         orderBy: { views: 'desc' },
         take: 5,
@@ -22,6 +32,8 @@ export async function GET() {
       activeProducts,
       totalCatalogs,
       totalFamilies,
+      totalOrders,
+      pendingOrders,
       topProducts
     });
   } catch (error) {

@@ -84,6 +84,18 @@ export default function AdminDashboardClient({ dict }: { dict: any }) {
             ))
           ) : (
             <>
+              <Link href={`/${lang}/admin/orders`} style={{ textDecoration: 'none' }}>
+                <div style={{ padding: '1.5rem', background: 'rgba(79, 70, 229, 0.08)', border: '1px solid rgba(79, 70, 229, 0.3)', borderRadius: 'var(--radius-md)', textAlign: 'center', transition: 'transform 0.2s' }}>
+                  <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--primary)', lineHeight: 1.2 }}>{stats.totalOrders || 0}</div>
+                  <div style={{ color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 700 }}>📦 {dict?.orders?.title || 'Commandes'}</div>
+                </div>
+              </Link>
+              <Link href={`/${lang}/admin/orders`} style={{ textDecoration: 'none' }}>
+                <div style={{ padding: '1.5rem', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: 'var(--radius-md)', textAlign: 'center', transition: 'transform 0.2s' }}>
+                  <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#d97706', lineHeight: 1.2 }}>{stats.pendingOrders || 0}</div>
+                  <div style={{ color: '#d97706', fontSize: '0.9rem', fontWeight: 700 }}>⏳ {dict?.orders?.pending || 'En attente'}</div>
+                </div>
+              </Link>
               <div style={{ padding: '1.5rem', background: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
                 <div style={{ fontSize: '2.5rem', fontWeight: 'bold', color: 'var(--text-main)', lineHeight: 1.2 }}>{stats.totalProducts}</div>
                 <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>{dict.admin.totalProducts}</div>

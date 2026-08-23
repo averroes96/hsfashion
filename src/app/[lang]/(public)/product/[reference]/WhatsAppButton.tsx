@@ -39,11 +39,26 @@ export default function WhatsAppButton({
         target="_blank"
         rel="noopener noreferrer"
         onClick={handleClick}
-        className="btn btn-primary app-tap-target" 
-        style={{ width: '100%', padding: '0.95rem 1.5rem', fontSize: '1.05rem', textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}
+        className="btn app-tap-target" 
+        style={{
+          width: '100%',
+          padding: '0.95rem 1.5rem',
+          fontSize: '1.05rem',
+          textAlign: 'center',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '0.5rem',
+          backgroundColor: '#25D366',
+          color: '#ffffff',
+          fontWeight: 700,
+          borderRadius: 'var(--radius-full)',
+          boxShadow: '0 4px 14px rgba(37, 211, 102, 0.35)',
+          textDecoration: 'none',
+        }}
       >
-        <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>chat</span>
-        {inquireText}
+        <span className="material-symbols-outlined" style={{ fontSize: '1.25rem', color: '#ffffff' }}>chat</span>
+        <span style={{ color: '#ffffff' }}>{inquireText}</span>
       </a>
 
       {/* Fixed Mobile Bottom Action Sheet (Instant One-Tap Conversion) */}
@@ -58,7 +73,7 @@ export default function WhatsAppButton({
           target="_blank"
           rel="noopener noreferrer"
           onClick={handleClick}
-          className="btn btn-primary app-tap-target" 
+          className="btn app-tap-target" 
           style={{ 
             padding: '0.65rem 1.25rem', 
             fontSize: '0.92rem', 
@@ -66,11 +81,15 @@ export default function WhatsAppButton({
             display: 'flex', 
             alignItems: 'center', 
             gap: '0.4rem',
-            boxShadow: '0 4px 14px rgba(79, 70, 229, 0.4)'
+            backgroundColor: '#25D366',
+            color: '#ffffff',
+            fontWeight: 700,
+            boxShadow: '0 4px 14px rgba(37, 211, 102, 0.35)',
+            textDecoration: 'none',
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }}>chat</span>
-          <span>{inquireText}</span>
+          <span className="material-symbols-outlined" style={{ fontSize: '1.15rem', color: '#ffffff' }}>chat</span>
+          <span style={{ color: '#ffffff' }}>{inquireText}</span>
         </a>
       </div>
     </>

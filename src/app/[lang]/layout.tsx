@@ -22,6 +22,8 @@ export const metadata: Metadata = {
 import prisma from '@/lib/prisma';
 import { getDictionary, Locale } from '@/lib/dictionaries';
 import AppBottomNav from "@/components/AppBottomNav";
+import { CartProvider } from "@/context/CartContext";
+import CartDrawer from "@/components/CartDrawer";
 
 export default async function RootLayout({
   children,
@@ -57,11 +59,14 @@ export default async function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
       <body className={mainFontClass}>
-        <PromoBanner message={settings?.promoMessage} />
-        {children}
-        <AppBottomNav lang={lang} dict={dict} phoneNumber={settings?.phoneNumber} />
-        <Analytics />
-        <SpeedInsights />
+        <CartProvider>
+          <PromoBanner message={settings?.promoMessage} />
+          {children}
+          <AppBottomNav lang={lang} dict={dict} phoneNumber={settings?.phoneNumber} />
+          <CartDrawer lang={lang} dict={dict} />
+          <Analytics />
+          <SpeedInsights />
+        </CartProvider>
       </body>
     </html>
   );

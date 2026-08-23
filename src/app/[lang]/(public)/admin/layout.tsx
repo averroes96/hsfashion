@@ -12,6 +12,7 @@ export default async function AdminLayout({ children, params }: { children: Reac
         <h2>HS Fashion Admin</h2>
         <nav>
           <Link href={`/${lang}/admin`}>{dict.admin.dashboard}</Link>
+          <Link href={`/${lang}/admin/orders`}>📦 {dict?.orders?.title || 'Commandes'}</Link>
           <Link href={`/${lang}/admin/products`}>{dict.admin.productsList}</Link>
           <Link href={`/${lang}/admin/catalogs`}>{dict.admin.catalogsList}</Link>
           <Link href={`/${lang}/admin/families`}>{dict.admin.familiesList}</Link>

@@ -7,6 +7,7 @@ import { getDictionary, Locale } from '@/lib/dictionaries';
 import ProductTracker from '@/components/ProductTracker';
 import PublicHeader from '@/components/PublicHeader';
 import SimilarProductsCarousel from '@/components/SimilarProductsCarousel';
+import AddToCartButton from '@/components/AddToCartButton';
 
 export default async function ProductPage({ params }: { params: Promise<{ reference: string, lang: string }> }) {
   const { reference, lang } = await params;
@@ -114,18 +115,32 @@ export default async function ProductPage({ params }: { params: Promise<{ refere
                 </div>
               )}
 
-              {settings?.phoneNumber ? (
-                <WhatsAppButton 
-                  phoneNumber={settings.phoneNumber} 
-                  inquireText={dict.product.inquire} 
-                  reference={product.reference} 
-                />
-              ) : (
-                <button className="btn btn-primary" style={{ width: '100%', padding: '0.9rem 1.5rem', fontSize: '1.05rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>chat</span>
-                  {dict.product.inquire}
-                </button>
-              )}
+              {/* Carton Order Action */}
+              <AddToCartButton
+                product={{
+                  id: product.id,
+                  reference: product.reference,
+                  familyName: lang === 'ar' && product.family.arabicName ? product.family.arabicName : product.family.name,
+                  imageUrl: product.images[0]?.thumbnailUrl || product.images[0]?.mediumUrl,
+                }}
+                dict={dict}
+                lang={lang}
+              />
+
+              <div style={{ marginTop: '0.75rem' }}>
+                {settings?.phoneNumber ? (
+                  <WhatsAppButton 
+                    phoneNumber={settings.phoneNumber} 
+                    inquireText={dict.product.inquire} 
+                    reference={product.reference} 
+                  />
+                ) : (
+                  <button className="btn btn-primary" style={{ width: '100%', padding: '0.9rem 1.5rem', fontSize: '1.05rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>chat</span>
+                    {dict.product.inquire}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 

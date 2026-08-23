@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import LanguageSwitcher from './LanguageSwitcher';
 import SearchBar from './SearchBar';
+import CartButton from './CartButton';
 
 interface PublicHeaderProps {
   lang: string;
@@ -25,9 +26,10 @@ export default function PublicHeader({ lang, dict }: PublicHeaderProps) {
           <span>HS Fashion</span>
         </Link>
 
-        {/* Search & Language Controls */}
+        {/* Search, Cart & Language Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <SearchBar dict={dict} lang={lang} />
+          <CartButton lang={lang} dict={dict} />
           <LanguageSwitcher currentLang={lang} />
         </div>
       </div>
