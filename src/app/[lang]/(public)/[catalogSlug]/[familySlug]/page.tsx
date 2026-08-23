@@ -2,23 +2,18 @@ import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getDictionary, Locale } from '@/lib/dictionaries';
-import SmartImage from '@/components/SmartImage';
-import Pagination from '@/components/Pagination';
 import PublicHeader from '@/components/PublicHeader';
 import CategoryPillSlider from '@/components/CategoryPillSlider';
+import InfiniteProductFeed from '@/components/InfiniteProductFeed';
 
 const PRODUCTS_PER_PAGE = 12;
 
 export default async function FamilyPage({ 
-  params, 
-  searchParams 
+  params 
 }: { 
   params: Promise<{ catalogSlug: string, familySlug: string, lang: string }>;
-  searchParams: Promise<{ page?: string }>;
 }) {
   const { catalogSlug, familySlug, lang } = await params;
-  const { page } = await searchParams;
-  const currentPage = Math.max(1, parseInt(page || '1', 10) || 1);
   const dict = await getDictionary(lang as Locale);
   
   const [family, catalog, allCatalogFamilies] = await Promise.all([
@@ -51,14 +46,15 @@ export default async function FamilyPage({
     }
   };
 
-  const [totalProducts, products] = await Promise.all([
+  const [totalProducts, initialProducts] = await Promise.all([
     prisma.product.count({ where: whereCondition }),
     prisma.product.findMany({
       where: whereCondition,
       orderBy: { createdAt: 'desc' },
-      skip: (currentPage - 1) * PRODUCTS_PER_PAGE,
+      skip: 0,
       take: PRODUCTS_PER_PAGE,
       include: {
+        family: true,
         images: {
           where: { isPrimary: true },
           take: 1
@@ -66,8 +62,6 @@ export default async function FamilyPage({
       }
     })
   ]);
-
-  const totalPages = Math.ceil(totalProducts / PRODUCTS_PER_PAGE);
 
   return (
     <>
@@ -123,50 +117,21 @@ export default async function FamilyPage({
             />
           )}
 
-          {products.length === 0 && (
+          {totalProducts === 0 ? (
             <div className="glass-card fade-in-up" style={{ padding: '3rem', textAlign: 'center' }}>
               <p style={{ color: 'var(--text-muted)' }}>{dict.family.noProducts}</p>
             </div>
+          ) : (
+            <InfiniteProductFeed
+              initialProducts={initialProducts}
+              catalogSlug={catalog.slug}
+              familySlug={family.slug}
+              lang={lang}
+              totalProducts={totalProducts}
+              dict={dict}
+              limit={PRODUCTS_PER_PAGE}
+            />
           )}
-
-          <div className="product-card-grid">
-            {products.map((product: any, index: number) => {
-              const primaryImage = product.images[0];
-              return (
-                <Link key={product.id} href={`/${lang}/product/${encodeURIComponent(product.reference)}`} className={`product-card fade-in-up delay-${index % 3 + 1}`}>
-                  <div className="product-card-media">
-                    {primaryImage ? (
-                      <SmartImage 
-                        src={primaryImage.mediumUrl || primaryImage.thumbnailUrl} 
-                        alt={product.reference} 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        wrapperStyle={{ width: '100%', height: '100%' }}
-                      />
-                    ) : (
-                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-                        No Image
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="product-card-body">
-                    <h3 className="product-card-title">{product.reference}</h3>
-                    <p className="product-card-subtitle">
-                      {product.details || "View details"}
-                    </p>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            basePath={`/${lang}/${catalogSlug}/${familySlug}`}
-            dict={dict}
-            lang={lang}
-          />
         </div>
       </main>
     </>

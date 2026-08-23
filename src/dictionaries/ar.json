@@ -96,7 +96,10 @@
     "of": "من",
     "showing": "عرض",
     "to": "إلى",
-    "results": "نتائج"
+    "results": "نتائج",
+    "loadingMore": "جاري تحميل المزيد من الموديلات...",
+    "endOfCollection": "✓ لقد اطلعت على جميع موديلات هذه الفئة",
+    "retry": "إعادة المحاولة"
   },
   "visualSearch": {
     "searchPlaceholder": "ابحث بالمرجع أو ارفع صورة حذاء...",

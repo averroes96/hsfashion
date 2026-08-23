@@ -96,7 +96,10 @@
     "of": "sur",
     "showing": "Affichage de",
     "to": "à",
-    "results": "résultats"
+    "results": "résultats",
+    "loadingMore": "Chargement d'autres modèles...",
+    "endOfCollection": "✓ Vous avez vu tous les modèles de cette catégorie",
+    "retry": "Réessayer"
   },
   "visualSearch": {
     "searchPlaceholder": "Rechercher une référence ou importer une photo...",
