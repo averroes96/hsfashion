@@ -154,9 +154,15 @@ export default function AdminProductsClient({ dict }: { dict: any }) {
             {products.length} {dict.admin.totalProducts || 'produits au total'}
           </p>
         </div>
-        <Link href={`/${lang}/admin/products/new`} className="btn">
-          + {dict.admin.addNewProduct}
-        </Link>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <Link href={`/${lang}/admin/products/bulk`} className="btn btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+            <span>🚀</span>
+            <span>{dict?.admin?.bulkUpload || 'Import Multiple'}</span>
+          </Link>
+          <Link href={`/${lang}/admin/products/new`} className="btn">
+            + {dict.admin.addNewProduct}
+          </Link>
+        </div>
       </div>
 
       <div className="admin-card" style={{ marginTop: '1.5rem' }}>

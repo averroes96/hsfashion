@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 
 export default function AdminNewProductClient({ dict }: { dict: any }) {
@@ -175,6 +176,18 @@ export default function AdminNewProductClient({ dict }: { dict: any }) {
 
   return (
     <div>
+      {/* Mode Switch Tabs */}
+      <div className="admin-mode-tabs">
+        <button type="button" className="admin-mode-tab active">
+          <span>📄</span>
+          <span>{dict?.admin?.singleMode || 'Ajout Unique'}</span>
+        </button>
+        <Link href={`/${lang}/admin/products/bulk`} className="admin-mode-tab">
+          <span>🚀</span>
+          <span>{dict?.admin?.bulkMode || 'Ajout par Lot (Multiple)'}</span>
+        </Link>
+      </div>
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1>{dict.admin.addNewProduct}</h1>
         {files.length > 0 && (

@@ -119,33 +119,83 @@
 .admin-content .btn {
   background-color: var(--primary);
   color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
+  border: 1px solid transparent;
+  padding: 0.65rem 1.4rem;
   border-radius: var(--radius-full);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  text-decoration: none;
+  font-family: inherit;
 }
 
 .admin-content button[type="submit"]:hover,
 .admin-content .btn:hover {
   background-color: var(--primary-hover);
   transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
 }
 
-/* Danger buttons (like delete) */
+/* Outline Buttons */
+.admin-content .btn.btn-outline,
+.admin-content .btn-outline {
+  background-color: var(--surface) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.admin-content .btn.btn-outline:hover,
+.admin-content .btn-outline:hover {
+  background-color: var(--bg-color) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  transform: translateY(-1px);
+}
+
+/* Danger / Delete Solid Buttons */
 .admin-content button.bg-red-600,
-.admin-content button[style*="red"],
 .admin-content .btn-danger {
   background-color: #ef4444 !important;
-  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2) !important;
+  color: white !important;
+  border-color: #ef4444 !important;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.25) !important;
 }
 
 .admin-content button.bg-red-600:hover,
-.admin-content button[style*="red"]:hover,
 .admin-content .btn-danger:hover {
   background-color: #dc2626 !important;
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.35) !important;
+}
+
+/* Danger Soft / Outline Button */
+.admin-content .btn-danger-outline {
+  background-color: rgba(239, 68, 68, 0.06) !important;
+  color: #ef4444 !important;
+  border: 1px solid rgba(239, 68, 68, 0.25) !important;
+  box-shadow: none !important;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.admin-content .btn-danger-outline:hover {
+  background-color: #ef4444 !important;
+  color: white !important;
+  border-color: #ef4444 !important;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3) !important;
 }
 
 /* Table styles */
@@ -289,4 +339,185 @@
   background: var(--surface);
   color: #ef4444;
   border-color: #ef4444;
+}
+
+/* Admin Mode Switch Tabs */
+.admin-mode-tabs {
+  display: inline-flex;
+  background: var(--bg-color);
+  padding: 0.35rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+  gap: 0.35rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-mode-tab {
+  padding: 0.55rem 1.25rem;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
+
+.admin-mode-tab.active {
+  background: var(--surface);
+  color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Bulk Upload Dropzone */
+.bulk-dropzone {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 3rem 2rem;
+  text-align: center;
+  background: var(--bg-color);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.bulk-dropzone:hover, .bulk-dropzone.dragging {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  transform: scale(1.005);
+}
+
+.bulk-dropzone-icon {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+/* Catalog Checkbox Pill Selector */
+.catalog-chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.catalog-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  color: var(--text-main);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.catalog-chip.selected {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+}
+
+/* Bulk Staging Queue Card */
+.bulk-card {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 1.25rem;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  margin-bottom: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+@media (max-width: 768px) {
+  .bulk-card {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bulk-card:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.bulk-card-thumb {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+  background: var(--bg-color);
+}
+
+.bulk-card-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* Status Badges */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.status-pill.ready {
+  background: var(--bg-color);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+
+.status-pill.uploading {
+  background: var(--primary-light);
+  color: var(--primary-hover);
+}
+
+.status-pill.success {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status-pill.error {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Progress Bar */
+.bulk-progress-bar {
+  width: 100%;
+  height: 10px;
+  background: var(--bg-color);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin: 1rem 0;
+  border: 1px solid var(--border-color);
+}
+
+.bulk-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 50%, #10b981 100%);
+  transition: width 0.3s ease;
 }
