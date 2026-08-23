@@ -83,7 +83,7 @@
     "noFilteredProducts": "Aucun produit ne correspond à vos critères de recherche.",
     "ai": {
       "autoFillBtn": "Remplir avec l'IA ✨",
-      "analyzing": "Analyse de la chaussure par Gemini Pro...",
+      "analyzing": "Analyse de la chaussure par l'IA...",
       "aiSuccess": "Catégorie et détails détectés avec succès !",
       "selectImageFirst": "Veuillez d'abord sélectionner au moins une image.",
       "aiError": "Échec de l'analyse IA. Veuillez réessayer ou remplir manuellement."
@@ -107,7 +107,7 @@
     "modalTitle": "Recherche Visuelle par IA ✨",
     "modalSubtitle": "Importez la photo d'une chaussure pour trouver instantanément les modèles similaires dans notre collection.",
     "dropzoneText": "Glissez-déposez une photo ici ou cliquez pour parcourir",
-    "analyzing": "Analyse de la silhouette et des détails par Gemini AI...",
+    "analyzing": "Analyse de la silhouette et des détails par l'IA...",
     "noMatches": "Aucun modèle similaire trouvé dans le catalogue actif.",
     "matchedItems": "Modèles similaires trouvés",
     "viewProduct": "Voir le produit",

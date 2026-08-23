@@ -204,7 +204,7 @@ export default function VisualSearchModal({
             </div>
             <div>
               <h2 style={{ fontSize: '1.25rem', margin: 0, fontWeight: 800 }}>
-                {vs.modalTitle || 'Visual Search with Gemini AI ✨'}
+                {vs.modalTitle || 'Visual Search with AI ✨'}
               </h2>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
                 {vs.modalSubtitle || 'Upload a photo to find matching shoes in our collections.'}
@@ -333,7 +333,7 @@ export default function VisualSearchModal({
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary)', fontWeight: 700 }}>
                         <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>✨</span>
-                        <span>{vs.analyzing || 'Analyzing shoe details with Gemini AI...'}</span>
+                        <span>{vs.analyzing || 'Analyzing shoe details with AI...'}</span>
                       </div>
                       <div className="skeleton-bg" style={{ height: '16px', width: '70%', borderRadius: '4px' }} />
                     </div>

@@ -125,9 +125,9 @@ Respond ONLY with valid JSON adhering to the specified schema.`;
     const parsed = JSON.parse(responseText);
     return NextResponse.json(parsed);
   } catch (error: any) {
-    console.error('Gemini auto-fill error:', error);
+    console.error('AI auto-fill error:', error);
     return NextResponse.json(
-      { error: error?.message || 'Failed to process image with Gemini AI' },
+      { error: error?.message || 'Failed to process image with AI' },
       { status: 500 }
     );
   }

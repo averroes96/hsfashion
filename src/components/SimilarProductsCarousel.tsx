@@ -87,7 +87,7 @@ export default function SimilarProductsCarousel({
                 letterSpacing: '0.05em',
               }}
             >
-              Gemini AI
+              AI
             </span>
             <h2 style={{ fontSize: '1.5rem', margin: 0, fontWeight: 800 }}>
               {sp.title || 'Similar Styles Recommended by AI ✨'}

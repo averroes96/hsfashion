@@ -199,7 +199,7 @@ export default function AdminNewProductClient({ dict }: { dict: any }) {
             {isAiAnalyzing ? (
               <>
                 <span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>⏳</span>
-                <span>{dict.admin?.ai?.analyzing || 'Analyzing with Gemini...'}</span>
+                <span>{dict.admin?.ai?.analyzing || 'Analyzing with AI...'}</span>
               </>
             ) : (
               <>
