@@ -11,18 +11,20 @@ export default function SmartImage({ src, alt, className, style, wrapperStyle, .
   const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
-    if (imgRef.current && imgRef.current.complete) {
+    setIsLoaded(false);
+    setHasError(false);
+    if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
       setIsLoaded(true);
     }
   }, [src]);
 
   return (
     <div 
-      className={`skeleton-bg ${className || ''}`} 
+      className={`${!isLoaded && !hasError ? 'skeleton-bg' : ''} ${className || ''}`} 
       style={{ 
         position: 'relative', 
         overflow: 'hidden', 
-        backgroundColor: 'var(--border-color)',
+        backgroundColor: !isLoaded && !hasError ? 'var(--border-color)' : 'transparent',
         ...wrapperStyle 
       }}
     >
@@ -35,7 +37,7 @@ export default function SmartImage({ src, alt, className, style, wrapperStyle, .
         style={{
           ...style,
           opacity: isLoaded ? 1 : 0,
-          transition: 'opacity 0.5s ease-in-out',
+          transition: 'opacity 0.3s ease-in-out',
         }}
         {...props}
       />

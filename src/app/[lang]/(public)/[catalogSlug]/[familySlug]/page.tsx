@@ -63,6 +63,8 @@ export default async function FamilyPage({
     })
   ]);
 
+  const displayFamilyName = lang === 'ar' && family.arabicName ? family.arabicName : family.name;
+
   return (
     <>
       <div className="blob-bg">
@@ -92,11 +94,11 @@ export default async function FamilyPage({
               <span>/</span>
               <Link href={`/${lang}/${catalogSlug}`}>{catalog.name}</Link>
               <span>/</span>
-              <span>{family.name}</span>
+              <span>{displayFamilyName}</span>
             </nav>
             
             <h1 className="hero-title">
-              {family.name}
+              {displayFamilyName}
             </h1>
             {family.description && (
               <p className="hero-subtitle">

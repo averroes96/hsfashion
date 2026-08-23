@@ -154,7 +154,7 @@ export default function InfiniteProductFeed({
               <div className="product-card-body">
                 <h3 className="product-card-title">{product.reference}</h3>
                 <p className="product-card-subtitle">
-                  {product.details || 'View details'}
+                  {product.details || dict?.product?.viewDetails || dict?.catalog?.viewDetails || (lang === 'ar' ? 'عرض التفاصيل' : 'Voir détails')}
                 </p>
               </div>
             </Link>

@@ -13,6 +13,7 @@
   "catalog": {
     "all": "Tous",
     "viewAll": "Voir tout",
+    "viewDetails": "Voir détails",
     "noProducts": "Aucun produit dans ce catalogue pour le moment."
   },
   "family": {
@@ -21,7 +22,15 @@
   },
   "product": {
     "description": "Description",
-    "inquire": "Renseignez-vous sur cette pièce"
+    "viewDetails": "Voir détails",
+    "inquire": "Renseignez-vous sur cette pièce",
+    "wholesaleSpecs": "Détails & Spécifications de Gros",
+    "category": "Catégorie",
+    "packaging": "Conditionnement",
+    "packagingVal": "Carton (Assortiment standard)",
+    "availability": "Disponibilité",
+    "inStock": "Disponible pour commande en gros",
+    "defaultDesc": "Modèle de confection soignée issu de notre collection {family}, alliant confort, élégance et finitions haut de gamme pour votre boutique."
   },
   "admin": {
     "dashboard": "Tableau de Bord",

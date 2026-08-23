@@ -140,11 +140,12 @@ export default function ImageGallery({ images }: { images: any[] }) {
         style={{ width: '100%', overflow: 'hidden', padding: '1rem', background: 'var(--surface)', cursor: 'zoom-in' }}
         onClick={() => setIsZoomed(true)}
       >
-        <div style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', background: 'var(--bg-color)', position: 'relative' }}>
+        <div style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', background: 'transparent', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <SmartImage 
             src={activeImage.fullUrl || activeImage.mediumUrl || activeImage.thumbnailUrl} 
             alt="Product" 
             style={{ width: '100%', display: 'block', objectFit: 'contain', maxHeight: '70vh' }}
+            wrapperStyle={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           />
           {/* Zoom icon hint */}
           <div style={{

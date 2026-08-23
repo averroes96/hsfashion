@@ -211,6 +211,7 @@ export default function AdminBulkUploadClient({ dict }: { dict: any }) {
           updateQueueItem(item.id, {
             familyId: aiData.familyId || item.familyId,
             details: aiData.details || item.details,
+            description: aiData.description || item.description,
             reference: aiData.detectedSku || item.reference,
           });
         }
