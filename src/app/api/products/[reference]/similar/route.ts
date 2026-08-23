@@ -14,8 +14,9 @@ export async function GET(
 
     const { searchParams } = new URL(request.url);
     const lang = searchParams.get('lang') || 'fr';
+    const forceRefresh = searchParams.get('refresh') === 'true';
 
-    // 1. Fetch the target product
+    // 1. Fetch the target product with its primary image
     const targetProduct = await prisma.product.findUnique({
       where: { reference: decodedReference },
       select: {
@@ -25,6 +26,11 @@ export async function GET(
         description: true,
         familyId: true,
         family: { select: { name: true, arabicName: true } },
+        images: {
+          where: { isPrimary: true },
+          take: 1,
+          select: { thumbnailUrl: true, mediumUrl: true }
+        },
         aiSimilarCache: true,
         aiCacheUpdatedAt: true,
       }
@@ -38,7 +44,7 @@ export async function GET(
     const cacheObj = targetProduct.aiSimilarCache as Record<string, any[]> | null;
     const cachedMatches = cacheObj?.[lang];
 
-    if (Array.isArray(cachedMatches) && cachedMatches.length > 0) {
+    if (!forceRefresh && Array.isArray(cachedMatches) && cachedMatches.length > 0) {
       const cachedProductIds = cachedMatches.map(m => m.productId);
 
       // Fast indexed fetch for active products and images
@@ -87,7 +93,7 @@ export async function GET(
       }
     }
 
-    // 3. CACHE MISS -> Fetch other active products with minimal projection
+    // 3. Fetch other active products
     const otherProducts = await prisma.product.findMany({
       where: {
         isActive: true,
@@ -141,7 +147,22 @@ export async function GET(
       return NextResponse.json({ matches: createFallbackMatches(otherProducts) });
     }
 
-    // Compact candidate summary for fast TTFT (Time to First Token)
+    // Attempt to download target product image for multimodal inspection
+    let targetImageBase64: string | null = null;
+    const targetImageUrl = targetProduct.images?.[0]?.thumbnailUrl || targetProduct.images?.[0]?.mediumUrl;
+    if (targetImageUrl) {
+      try {
+        const imgRes = await fetch(targetImageUrl, { signal: AbortSignal.timeout(3500) });
+        if (imgRes.ok) {
+          const arrayBuf = await imgRes.arrayBuffer();
+          targetImageBase64 = Buffer.from(arrayBuf).toString('base64');
+        }
+      } catch (imgErr) {
+        console.warn('Failed to fetch target image for vision similarity:', imgErr);
+      }
+    }
+
+    // Candidate summary for AI
     const candidateSummary = otherProducts.map(p => ({
       id: p.id,
       reference: p.reference,
@@ -151,8 +172,8 @@ export async function GET(
       description: p.description || ''
     }));
 
-    const prompt = `You are a luxury footwear personal stylist for HS Fashion.
-Analyze the target shoe and pick the top 4-6 most stylistically and aesthetically matching models from the candidates.
+    const prompt = `You are an expert luxury footwear personal stylist and merchandiser for HS Fashion.
+Analyze the target shoe (both the photo if provided and the text info) and select the top 4-6 most stylistically and visually matching models from the candidate list.
 
 Target Shoe:
 - Reference: "${targetProduct.reference}"
@@ -160,26 +181,41 @@ Target Shoe:
 - Details: "${targetProduct.details || ''}"
 - Description: "${targetProduct.description || ''}"
 
-Candidate Items:
+Candidate Items in Store:
 ${JSON.stringify(candidateSummary, null, 2)}
 
-Tasks:
-1. Rank up to 6 candidate items from most similar to least (considering silhouette, sole design, vibe, materials, and occasion).
-2. For each match, return:
+CRITICAL STYLING & SILHOUETTE RULES (MANDATORY):
+1. STRICT SILHOUETTE COMPATIBILITY:
+   - If the target shoe is a FLAT CASUAL LOAFER / MOCCASIN / DRIVER / SLIDE: You MUST NEVER recommend high-heeled stilettos or pumps (escarpins), even if they share an administrative category. Only recommend other loafers, driving shoes, mules, or smart-casual flats.
+   - If the target shoe is an EVENING HIGH HEEL / STILETTO PUMP: You MUST NEVER recommend flat casual driving moccasins or running sneakers.
+   - If the target shoe is a SNEAKER: Only recommend other sneakers or street-chic platform flats.
+2. Rank up to 6 candidate items that a buyer looking at this specific shoe would genuinely love to see as alternatives or matching collection variants.
+3. For each match, return:
    - "productId": The candidate ID.
-   - "similarityScore": A number between 70 and 98.
-   - "matchHighlight": A concise 2-3 word badge in ${lang === 'ar' ? 'Arabic' : 'French'}.
-   - "matchReason": A concise 1-sentence explanation of the similarity in ${lang === 'ar' ? 'Arabic' : 'French'}.
+   - "similarityScore": A number between 70 and 98 (only give > 85 to genuinely compatible silhouettes).
+   - "matchHighlight": A concise 2-3 word badge in ${lang === 'ar' ? 'Arabic' : 'French'} (e.g. "Semelle Assortie", "Même Style Mocassin", "Finitions Similaires" / "تصميم متناسق", "نعل متطابق", "تفاصيل متقاربة").
+   - "matchReason": A concise 1-sentence explanation of the stylistic similarity in ${lang === 'ar' ? 'Arabic' : 'French'}.
 
 Respond ONLY with valid JSON adhering to the specified schema.`;
 
     const ai = new GoogleGenAI({ apiKey });
 
+    const parts: any[] = [];
+    if (targetImageBase64) {
+      parts.push({
+        inlineData: {
+          mimeType: 'image/webp',
+          data: targetImageBase64
+        }
+      });
+    }
+    parts.push({ text: prompt });
+
     let responseText = '';
     try {
       const response = await ai.models.generateContent({
         model: 'gemini-3.6-flash',
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        contents: [{ role: 'user', parts }],
         config: {
           responseMimeType: 'application/json',
           responseSchema: {
@@ -208,7 +244,7 @@ Respond ONLY with valid JSON adhering to the specified schema.`;
       console.warn('Gemini 3.6 Flash failed, falling back to gemini-flash-latest:', primaryErr);
       const fallbackResponse = await ai.models.generateContent({
         model: 'gemini-flash-latest',
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        contents: [{ role: 'user', parts }],
         config: {
           responseMimeType: 'application/json',
           responseSchema: {
