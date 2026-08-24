@@ -33,6 +33,21 @@ export default async function ProductPage({ params }: { params: Promise<{ refere
 
   const displayFamilyName = lang === 'ar' && product.family.arabicName ? product.family.arabicName : product.family.name;
 
+  const hasCustomDescription = Boolean(product.description && product.description.trim());
+  const hasCustomDetails = Boolean(product.details && product.details.trim());
+  const isDetailsDuplicate = hasCustomDescription && product.details?.trim() === product.description?.trim();
+  const showLeadDetails = hasCustomDetails && hasCustomDescription && !isDetailsDuplicate;
+
+  const mainDescriptionText = hasCustomDescription
+    ? product.description
+    : hasCustomDetails
+    ? product.details
+    : (dict?.product?.defaultDesc
+        ? dict.product.defaultDesc.replace('{family}', displayFamilyName)
+        : (lang === 'ar'
+            ? `موديل متقن الصنع من تشكيلة ${displayFamilyName}، يجمع بين الراحة والأناقة والجودة العالية لتلبية احتياجات زبائن متجرك.`
+            : `Modèle de confection soignée issu de notre collection ${displayFamilyName}, alliant confort, élégance et finitions haut de gamme pour votre boutique.`));
+
   return (
     <>
       <div className="blob-bg">
@@ -80,7 +95,7 @@ export default async function ProductPage({ params }: { params: Promise<{ refere
                 </div>
               </div>
               
-              {product.details && (
+              {showLeadDetails && (
                 <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)', marginBottom: '1rem' }}>
                   <p style={{ fontSize: 'clamp(0.95rem, 2vw, 1.05rem)', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
                     {product.details}
@@ -114,13 +129,7 @@ export default async function ProductPage({ params }: { params: Promise<{ refere
                   border: '1px solid var(--border-color)',
                   marginBottom: '0.75rem'
                 }}>
-                  {product.description || product.details || (
-                    dict?.product?.defaultDesc 
-                      ? dict.product.defaultDesc.replace('{family}', displayFamilyName)
-                      : (lang === 'ar' 
-                          ? `موديل متقن الصنع من تشكيلة ${displayFamilyName}، يجمع بين الراحة والأناقة والجودة العالية لتلبية احتياجات زبائن متجرك.`
-                          : `Modèle de confection soignée issu de notre collection ${displayFamilyName}, alliant confort, élégance et finitions haut de gamme pour votre boutique.`)
-                  )}
+                  {mainDescriptionText}
                 </div>
 
                 {/* Wholesale Specifications Bar */}
