@@ -1,22 +1,16 @@
 import prisma from '@/lib/prisma';
-import Link from 'next/link';
 import { getDictionary, Locale } from '@/lib/dictionaries';
-import SmartImage from '@/components/SmartImage';
-import Pagination from '@/components/Pagination';
 import PublicHeader from '@/components/PublicHeader';
+import InfiniteCatalogFeed, { FeedCatalog } from '@/components/InfiniteCatalogFeed';
 
-const CATALOGS_PER_PAGE = 6;
+const INITIAL_CATALOGS_COUNT = 8;
 
 export default async function Home({ 
   params, 
-  searchParams 
 }: { 
   params: Promise<{ lang: string }>;
-  searchParams: Promise<{ page?: string }>;
 }) {
   const { lang } = await params;
-  const { page } = await searchParams;
-  const currentPage = Math.max(1, parseInt(page || '1', 10) || 1);
   const dict = await getDictionary(lang as Locale);
 
   const whereCondition = {
@@ -27,26 +21,84 @@ export default async function Home({
     }
   };
 
-  const [totalCatalogs, catalogs, settings] = await Promise.all([
+  const [totalCatalogs, rawCatalogs, settings] = await Promise.all([
     prisma.catalog.count({ where: whereCondition }),
     prisma.catalog.findMany({
       where: whereCondition,
-      orderBy: { sortOrder: 'asc' },
-      skip: (currentPage - 1) * CATALOGS_PER_PAGE,
-      take: CATALOGS_PER_PAGE,
-      include: {
+      orderBy: [
+        { createdAt: 'desc' },
+        { sortOrder: 'asc' },
+      ],
+      take: INITIAL_CATALOGS_COUNT,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        createdAt: true,
         products: {
           where: { isActive: true },
-          include: { images: { orderBy: { sortOrder: 'asc' } } }
-        }
-      }
+          take: 1,
+          select: {
+            id: true,
+            images: {
+              where: { isPrimary: true },
+              take: 1,
+              select: {
+                thumbnailUrl: true,
+                mediumUrl: true,
+                fullUrl: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            products: {
+              where: { isActive: true },
+            },
+          },
+        },
+      },
     }),
     prisma.storeSettings.findUnique({
       where: { id: 'default' }
     })
   ]);
 
-  const totalPages = Math.ceil(totalCatalogs / CATALOGS_PER_PAGE);
+  const initialCatalogs: FeedCatalog[] = await Promise.all(
+    rawCatalogs.map(async (cat) => {
+      let bgImage: { thumbnailUrl: string; mediumUrl: string; fullUrl?: string } | null =
+        cat.products[0]?.images[0] || null;
+      if (!bgImage) {
+        const fallback = await prisma.productImage.findFirst({
+          where: {
+            product: {
+              catalogs: { some: { id: cat.id } },
+              isActive: true,
+            },
+          },
+          orderBy: { sortOrder: 'asc' },
+          select: {
+            thumbnailUrl: true,
+            mediumUrl: true,
+            fullUrl: true,
+          },
+        });
+        bgImage = fallback;
+      }
+
+      return {
+        id: cat.id,
+        name: cat.name,
+        slug: cat.slug,
+        description: cat.description,
+        createdAt: cat.createdAt.toISOString(),
+        productCount: cat._count.products,
+        thumbnail: bgImage?.mediumUrl || bgImage?.thumbnailUrl || null,
+      };
+    })
+  );
 
   return (
     <>
@@ -99,92 +151,14 @@ export default async function Home({
           </div>
         </section>
 
-        {/* Catalogs Section (Bento Grid) */}
+        {/* Catalogs Section (Month-Grouped Infinite Feed) */}
         <section className="container" style={{ paddingBottom: 'var(--spacing-xl)' }}>
-          <div className="catalog-card-grid fade-in-up delay-1">
-            {catalogs.map((catalog: any) => {
-              let bgImage = null;
-              for (const product of catalog.products) {
-                if (product.images && product.images.length > 0) {
-                  bgImage = product.images.find((img: any) => img.isPrimary) || product.images[0];
-                  break;
-                }
-              }
-
-              return (
-                <Link key={catalog.id} href={`/${lang}/${catalog.slug}`} style={{ display: 'block', height: '100%' }}>
-                  <div
-                    className="glass-card hover-lift"
-                    style={{
-                      height: 'clamp(280px, 45vw, 380px)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      overflow: 'hidden',
-                      position: 'relative',
-                      border: '1px solid rgba(255,255,255,0.8)'
-                    }}
-                  >
-                    {/* Background Image Container */}
-                    <div style={{ flex: 1, position: 'relative', overflow: 'hidden', background: 'var(--border-color)' }}>
-                      {bgImage && (
-                        <SmartImage
-                          src={bgImage.mediumUrl || bgImage.thumbnailUrl}
-                          alt={catalog.name}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                          wrapperStyle={{ width: '100%', height: '100%' }}
-                        />
-                      )}
-                    </div>
-
-                    {/* Card Content Footer */}
-                    <div style={{
-                      padding: '1.5rem',
-                      background: 'var(--surface)',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      borderTop: '1px solid var(--border-color)'
-                    }}>
-                      <div>
-                        <h3 style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>{catalog.name}</h3>
-                        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', color: 'var(--text-muted)', fontSize: '0.875rem', fontWeight: 500 }}>
-                          <span>{catalog.products.length} {dict.home.products}</span>
-                          <span>•</span>
-                          <span>{new Date(catalog.createdAt).toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'ar-DZ', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                        </div>
-                      </div>
-                      <div style={{
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '50%',
-                        background: 'var(--primary-light)',
-                        color: 'var(--primary-hover)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '1.25rem'
-                      }}>
-                        →
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              )
-            })}
-
-            {catalogs.length === 0 && (
-              <div className="glass-card" style={{ padding: '3rem', textAlign: 'center', gridColumn: '1 / -1' }}>
-                <p style={{ color: 'var(--text-muted)' }}>{dict.home.noCollections}</p>
-              </div>
-            )}
-          </div>
-
-          <Pagination 
-            currentPage={currentPage}
-            totalPages={totalPages}
-            basePath={`/${lang}`}
-            dict={dict}
+          <InfiniteCatalogFeed
+            initialCatalogs={initialCatalogs}
+            totalCatalogs={totalCatalogs}
             lang={lang}
+            dict={dict}
+            limit={INITIAL_CATALOGS_COUNT}
           />
         </section>
       </main>
