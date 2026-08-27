@@ -117,6 +117,15 @@
       "aiError": "Échec de l'analyse IA. Veuillez réessayer ou remplir manuellement."
     }
   },
+  "search": {
+    "placeholder": "Rechercher par référence SKU (ex: A2210, Jm598...)",
+    "title": "Recherche Rapide par Référence",
+    "subtitle": "Tapez une référence pour accéder instantanément au modèle et passer commande.",
+    "modelsFound": "modèles trouvés",
+    "noResults": "Aucun produit trouvé",
+    "noResultsSub": "Aucun modèle ne correspond à la référence",
+    "searching": "Recherche en cours..."
+  },
   "pagination": {
     "previous": "Précédent",
     "next": "Suivant",

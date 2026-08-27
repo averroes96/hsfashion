@@ -725,8 +725,10 @@ textarea.form-control {
   .cart-drawer {
     max-width: 100% !important;
   }
-  .cart-btn-label {
+  .cart-btn-label,
+  .search-btn-label {
     display: none !important;
   }
 }
+
 
