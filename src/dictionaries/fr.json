@@ -287,5 +287,28 @@
     "last30Days": "30 Derniers Jours",
     "last12Weeks": "12 Dernières Semaines",
     "allTime": "Tout l'historique"
+  },
+  "filters": {
+    "filterAndSort": "Filtres & Tri",
+    "drawerTitle": "Filtrer & Trier la Collection",
+    "drawerSubtitle": "Affinez votre recherche selon vos besoins en stock et conditionnement",
+    "assortmentTitle": "Conditionnement Carton (Assortiment)",
+    "allAssortments": "Tous les formats",
+    "pairs12": "12 paires (2x 36-41)",
+    "pairs15": "15 paires (3x 36-40)",
+    "pairs18": "18 paires (3x 36-41)",
+    "pairs24": "24 paires (4x 36-41)",
+    "categoryTitle": "Catégories / Familles",
+    "allCategories": "Toutes les catégories",
+    "sortTitle": "Trier les modèles",
+    "sortNewest": "✨ Plus récents (Nouveautés)",
+    "sortPopular": "🔥 Plus populaires (Vues)",
+    "sortRefAsc": "🔤 Référence (A-Z)",
+    "sortRefDesc": "🔤 Référence (Z-A)",
+    "reset": "Réinitialiser",
+    "apply": "Voir les {count} modèles",
+    "noResults": "Aucun modèle ne correspond à vos filtres actuels",
+    "clearAll": "Effacer les filtres",
+    "activeFilters": "Filtres actifs :"
   }
 }

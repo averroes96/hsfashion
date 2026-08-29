@@ -287,5 +287,28 @@
     "last30Days": "آخر 30 يوم",
     "last12Weeks": "آخر 12 أسبوع",
     "allTime": "كامل المدة"
+  },
+  "filters": {
+    "filterAndSort": "تصفية وترتيب",
+    "drawerTitle": "تصفية وترتيب التشكيلة",
+    "drawerSubtitle": "خصص بحثك بدقة وفق احتياجات محلك وتوزيع الكراتين المناسب",
+    "assortmentTitle": "توزيع الكرتونة (Assortiment)",
+    "allAssortments": "جميع التوزيعات",
+    "pairs12": "12 زوج (2x 36-41)",
+    "pairs15": "15 زوج (3x 36-40)",
+    "pairs18": "18 زوج (3x 36-41)",
+    "pairs24": "24 زوج (4x 36-41)",
+    "categoryTitle": "الأصناف والفئات",
+    "allCategories": "جميع الأصناف",
+    "sortTitle": "ترتيب الموديلات",
+    "sortNewest": "✨ الأحدث وصولاً",
+    "sortPopular": "🔥 الأكثر مشاهدة وشعبية",
+    "sortRefAsc": "🔤 المرجع (أ - ي)",
+    "sortRefDesc": "🔤 المرجع (ي - أ)",
+    "reset": "إعادة ضبط",
+    "apply": "عرض {count} موديل",
+    "noResults": "لا توجد موديلات تطابق خيارات التصفية الحالية",
+    "clearAll": "إلغاء التصفية",
+    "activeFilters": "التصفيات المفعلة :"
   }
 }

@@ -6,6 +6,7 @@ import CategoryPillSlider from './CategoryPillSlider';
 import BulkDownloadModal from './BulkDownloadModal';
 import FavoriteButton from './FavoriteButton';
 import PdfLookbookModal, { PdfProgressState } from './PdfLookbookModal';
+import ProductFilterDrawer, { FilterCategoryItem } from './ProductFilterDrawer';
 import { downloadImagesSmartly, ImageToDownload, DownloadProgress } from '@/lib/zipDownloader';
 import { generatePdfLookbook } from '@/lib/pdfLookbookGenerator';
 import { track } from '@vercel/analytics';
@@ -77,12 +78,96 @@ export default function CatalogClientView({
     percentage: 0,
   });
 
+  // Filter & Sort State
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedAssortment, setSelectedAssortment] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<string>('newest');
+
   const isArabic = lang === 'ar';
 
   // All products across all families in this catalog
   const allProducts = useMemo(() => {
     return sortedFamilies.flatMap((g) => g.products);
   }, [sortedFamilies]);
+
+  // Categories list with item counts for filter drawer
+  const filterCategories: FilterCategoryItem[] = useMemo(() => {
+    return sortedFamilies.map((g) => ({
+      id: g.family.id,
+      name: g.family.name,
+      arabicName: g.family.arabicName,
+      count: g.products.length,
+    }));
+  }, [sortedFamilies]);
+
+  // Filtered and Sorted Families & Products
+  const filteredFamilies = useMemo(() => {
+    return sortedFamilies
+      .map((group) => {
+        // Filter by category / family
+        if (selectedCategory !== 'all' && group.family.id !== selectedCategory) {
+          return null;
+        }
+
+        let prods = group.products.filter((p) => {
+          // Filter by assortment size
+          if (selectedAssortment !== 'all') {
+            const assortment = (p as any).sizeAssortment;
+            if (!assortment || !Array.isArray(assortment) || assortment.length === 0) {
+              return false;
+            }
+            const totalPairs = assortment.reduce(
+              (sum: number, it: any) => sum + (Number(it.ratio) || 0),
+              0
+            );
+            if (selectedAssortment === '12' && totalPairs !== 12) return false;
+            if (selectedAssortment === '15' && totalPairs !== 15) return false;
+            if (selectedAssortment === '18' && totalPairs !== 18) return false;
+            if (selectedAssortment === '24' && totalPairs !== 24) return false;
+          }
+          return true;
+        });
+
+        // Sort products inside group
+        prods = [...prods].sort((a, b) => {
+          if (sortBy === 'popular') {
+            return ((b as any).views || 0) - ((a as any).views || 0);
+          }
+          if (sortBy === 'ref_asc') {
+            return a.reference.localeCompare(b.reference);
+          }
+          if (sortBy === 'ref_desc') {
+            return b.reference.localeCompare(a.reference);
+          }
+          // Default newest
+          return 0;
+        });
+
+        if (prods.length === 0) return null;
+
+        return {
+          ...group,
+          products: prods,
+        };
+      })
+      .filter(Boolean) as FamilyGroup[];
+  }, [sortedFamilies, selectedCategory, selectedAssortment, sortBy]);
+
+  const totalFilteredProductsCount = useMemo(() => {
+    return filteredFamilies.reduce((sum, g) => sum + g.products.length, 0);
+  }, [filteredFamilies]);
+
+  const activeFilterCount =
+    (selectedCategory !== 'all' ? 1 : 0) +
+    (selectedAssortment !== 'all' ? 1 : 0) +
+    (sortBy !== 'newest' ? 1 : 0);
+
+  const handleResetFilters = () => {
+    setSelectedCategory('all');
+    setSelectedAssortment('all');
+    setSortBy('newest');
+  };
 
   // Total images in entire catalog
   const totalCatalogImagesCount = useMemo(() => {
@@ -365,6 +450,45 @@ export default function CatalogClientView({
             <span>{dict?.catalog?.downloadAll || (isArabic ? 'تحميل كل الصور' : 'Télécharger les photos')}</span>
           </button>
 
+          {/* Filter & Sort Trigger Button */}
+          <button
+            type="button"
+            onClick={() => setIsFilterDrawerOpen(true)}
+            className="btn btn-outline hover-lift"
+            title={isArabic ? 'تصفية وترتيب الموديلات' : 'Filtrer et trier les modèles'}
+            style={{
+              padding: '0.45rem 1rem',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              gap: '0.4rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              borderRadius: 'var(--radius-full)',
+              background: activeFilterCount > 0 ? 'var(--primary-light)' : 'transparent',
+              borderColor: activeFilterCount > 0 ? 'var(--primary)' : 'var(--border-color)',
+              color: activeFilterCount > 0 ? 'var(--primary)' : 'var(--text-main)',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }}>
+              tune
+            </span>
+            <span>{dict?.filters?.filterAndSort || (isArabic ? 'تصفية وترتيب' : 'Filtres & Tri')}</span>
+            {activeFilterCount > 0 && (
+              <span
+                style={{
+                  background: 'var(--primary)',
+                  color: 'white',
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  padding: '1px 6px',
+                  borderRadius: '999px',
+                }}
+              >
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+
           {/* Toggle Selection Mode Button */}
           <button
             type="button"
@@ -391,6 +515,125 @@ export default function CatalogClientView({
         </div>
       </div>
 
+      {/* Active Filters Chip Bar */}
+      {activeFilterCount > 0 && (
+        <div
+          className="fade-in"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '0.5rem',
+            marginBottom: '1.25rem',
+            padding: '0.5rem 1rem',
+            background: 'var(--bg-color)',
+            borderRadius: 'var(--radius-md)',
+            border: '1px dashed var(--primary)',
+          }}
+        >
+          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)' }}>
+            {dict?.filters?.activeFilters || (isArabic ? 'التصفيات المفعلة :' : 'Filtres actifs :')}
+          </span>
+
+          {/* Category Chip */}
+          {selectedCategory !== 'all' && (
+            <button
+              type="button"
+              onClick={() => setSelectedCategory('all')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                padding: '2px 8px',
+                borderRadius: 'var(--radius-full)',
+                background: 'var(--primary-light)',
+                color: 'var(--primary)',
+                border: 'none',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              <span>{filterCategories.find((c) => c.id === selectedCategory)?.name || selectedCategory}</span>
+              <span>✕</span>
+            </button>
+          )}
+
+          {/* Assortment Chip */}
+          {selectedAssortment !== 'all' && (
+            <button
+              type="button"
+              onClick={() => setSelectedAssortment('all')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                padding: '2px 8px',
+                borderRadius: 'var(--radius-full)',
+                background: 'rgba(2, 132, 199, 0.12)',
+                color: '#0284c7',
+                border: 'none',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              <span>{selectedAssortment} paires</span>
+              <span>✕</span>
+            </button>
+          )}
+
+          {/* Sort Chip */}
+          {sortBy !== 'newest' && (
+            <button
+              type="button"
+              onClick={() => setSortBy('newest')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                padding: '2px 8px',
+                borderRadius: 'var(--radius-full)',
+                background: 'rgba(217, 119, 6, 0.12)',
+                color: '#d97706',
+                border: 'none',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              <span>
+                {sortBy === 'popular'
+                  ? 'Plus populaires'
+                  : sortBy === 'ref_asc'
+                  ? 'Réf A-Z'
+                  : 'Réf Z-A'}
+              </span>
+              <span>✕</span>
+            </button>
+          )}
+
+          {/* Clear All */}
+          <button
+            type="button"
+            onClick={handleResetFilters}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-muted)',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              textDecoration: 'underline',
+              marginLeft: isArabic ? 'auto' : '0.25rem',
+              marginRight: isArabic ? '0.25rem' : 'auto',
+            }}
+          >
+            {dict?.filters?.clearAll || (isArabic ? 'إلغاء التصفية' : 'Effacer tout')}
+          </button>
+        </div>
+      )}
+
       {/* Category Pills Navigation Slider */}
       {sortedFamilies.length > 1 && (
         <CategoryPillSlider
@@ -401,6 +644,29 @@ export default function CatalogClientView({
         />
       )}
 
+      {/* Empty State when no products match filters */}
+      {filteredFamilies.length === 0 && sortedFamilies.length > 0 && (
+        <div className="glass-card fade-in-up" style={{ padding: '3rem 1.5rem', textAlign: 'center', margin: '2rem 0' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '3rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+            filter_alt_off
+          </span>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '0 0 0.5rem 0' }}>
+            {dict?.filters?.noResults || (isArabic ? 'لا توجد موديلات تطابق خيارات التصفية الحالية' : 'Aucun modèle ne correspond à vos filtres actuels')}
+          </h3>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', margin: '0 0 1.25rem 0' }}>
+            Essayez de réinitialiser vos filtres ou de sélectionner un autre assortiment carton.
+          </p>
+          <button
+            type="button"
+            onClick={handleResetFilters}
+            className="btn btn-primary hover-lift"
+            style={{ padding: '0.5rem 1.25rem', borderRadius: 'var(--radius-full)' }}
+          >
+            {dict?.filters?.reset || (isArabic ? 'إعادة ضبط' : 'Réinitialiser les filtres')}
+          </button>
+        </div>
+      )}
+
       {sortedFamilies.length === 0 && (
         <div className="glass-card fade-in-up" style={{ padding: '3rem', textAlign: 'center' }}>
           <p style={{ color: 'var(--text-muted)' }}>{dict?.catalog?.noProducts || 'Aucun produit dans ce catalogue'}</p>
@@ -408,7 +674,7 @@ export default function CatalogClientView({
       )}
 
       {/* Families & Product Grids */}
-      {sortedFamilies.map((group, index) => {
+      {filteredFamilies.map((group, index) => {
         const familyName = isArabic && group.family.arabicName ? group.family.arabicName : group.family.name;
         const familyImagesCount = group.products.reduce((acc, p) => acc + (p.images?.length || 0), 0);
 
@@ -773,6 +1039,23 @@ export default function CatalogClientView({
           </div>
         </div>
       )}
+
+      {/* Product Filter & Sort Slide-Over Drawer */}
+      <ProductFilterDrawer
+        isOpen={isFilterDrawerOpen}
+        onClose={() => setIsFilterDrawerOpen(false)}
+        lang={lang}
+        dict={dict}
+        categories={filterCategories}
+        selectedCategory={selectedCategory}
+        onSelectCategory={setSelectedCategory}
+        selectedAssortment={selectedAssortment}
+        onSelectAssortment={setSelectedAssortment}
+        sortBy={sortBy}
+        onSelectSort={setSortBy}
+        totalFilteredCount={totalFilteredProductsCount}
+        onReset={handleResetFilters}
+      />
     </>
   );
 }
