@@ -483,6 +483,8 @@ export default function InfiniteProductFeed({
             <Link
               key={product.id}
               href={productHref}
+              target="_blank"
+              rel="noopener noreferrer"
               className="product-card fade-in-up hover-lift"
               style={{
                 animationDelay: `${(index % 4) * 0.05}s`,

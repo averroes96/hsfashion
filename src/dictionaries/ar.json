@@ -241,5 +241,24 @@
     "totalPairs": "الإجمالي",
     "multiplier": "الحساب لـ {cartons} كراتين : {pairs} زوج بالإجمالي",
     "guaranteed": "تشكيلة قياسية متوازنة جاهزة للعرض والبيع في محلك"
+  },
+  "lookbook": {
+    "downloadPdf": "كتالوج PDF",
+    "downloadSelectionPdf": "تصدير المحدد إلى PDF",
+    "generatingTitle": "جاري تجهيز كتالوج PDF",
+    "generatingSubtitle": "إنشاء كتالوج عالي الدقة مزود برموز QR وتوزيع المقاسات...",
+    "stepImages": "تحميل الصور عالية الدقة ({current}/{total})...",
+    "stepQr": "إنشاء رموز QR للطلب السريع...",
+    "stepCompiling": "تجميع ملف PDF النهائي...",
+    "stepDone": "الكتالوج جاهز ! جاري التنزيل...",
+    "retryDownload": "إعادة تنزيل ملف PDF",
+    "coverTitle": "كتالوج الجملة",
+    "coverSubtitle": "موسم 2026 · تجارة الجملة (B2B)",
+    "coverSelection": "تشكيلة مختارة من الموديلات",
+    "packagingLabel": "توزيع الكرتونة",
+    "noAssortment": "تعبئة قياسية",
+    "orderDirectly": "امسح الرمز للطلب السريع",
+    "wholesaleTerms": "شروط البيع بالجملة",
+    "wholesaleTermsDesc": "البيع مخصص للمحلات والتجار. الطلبيات تباع بالكرتونة الكاملة. شحن سريع ومتابعة مباشرة عبر واتساب."
   }
 }

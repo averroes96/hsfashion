@@ -241,5 +241,24 @@
     "totalPairs": "Total",
     "multiplier": "Calcul pour {cartons} cartons : {pairs} paires au total",
     "guaranteed": "Assortiment standard prêt pour la vente en boutique"
+  },
+  "lookbook": {
+    "downloadPdf": "Catalogue PDF",
+    "downloadSelectionPdf": "Exporter la sélection en PDF",
+    "generatingTitle": "Génération du Catalogue PDF",
+    "generatingSubtitle": "Création de votre Lookbook haute résolution avec QR codes et assortiments...",
+    "stepImages": "Chargement des photos HD ({current}/{total})...",
+    "stepQr": "Génération des QR Codes de commande...",
+    "stepCompiling": "Compilation du document PDF...",
+    "stepDone": "Lookbook prêt ! Téléchargement en cours...",
+    "retryDownload": "Télécharger à nouveau le PDF",
+    "coverTitle": "CATALOGUE GROS",
+    "coverSubtitle": "Saison 2026 · Vente en Gros (B2B)",
+    "coverSelection": "Sélection Personnalisée de Modèles",
+    "packagingLabel": "Assortiment Carton",
+    "noAssortment": "Emballage standard",
+    "orderDirectly": "Scanner pour commander",
+    "wholesaleTerms": "Conditions de Vente en Gros",
+    "wholesaleTermsDesc": "Vente réservée aux professionnels et boutiques. Commande par carton complet. Livraison express et suivi personnalisé."
   }
 }

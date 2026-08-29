@@ -5,7 +5,9 @@ import SmartImage from './SmartImage';
 import CategoryPillSlider from './CategoryPillSlider';
 import BulkDownloadModal from './BulkDownloadModal';
 import FavoriteButton from './FavoriteButton';
+import PdfLookbookModal, { PdfProgressState } from './PdfLookbookModal';
 import { downloadImagesSmartly, ImageToDownload, DownloadProgress } from '@/lib/zipDownloader';
+import { generatePdfLookbook } from '@/lib/pdfLookbookGenerator';
 import { track } from '@vercel/analytics';
 
 interface ProductImage {
@@ -64,6 +66,16 @@ export default function CatalogClientView({
   const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set());
   const [downloadProgress, setDownloadProgress] = useState<DownloadProgress | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [pdfProgress, setPdfProgress] = useState<PdfProgressState>({
+    isOpen: false,
+    isGenerating: false,
+    isComplete: false,
+    current: 0,
+    total: 0,
+    stepName: '',
+    percentage: 0,
+  });
 
   const isArabic = lang === 'ar';
 
@@ -198,12 +210,84 @@ export default function CatalogClientView({
     );
   };
 
+  // Generate Lookbook PDF
+  const handleDownloadPdf = async (productsToExport: Product[], customTitle?: string) => {
+    if (productsToExport.length === 0) return;
+
+    setPdfProgress({
+      isOpen: true,
+      isGenerating: true,
+      isComplete: false,
+      current: 0,
+      total: productsToExport.length,
+      stepName: 'Initialisation du Lookbook...',
+      percentage: 5,
+    });
+
+    try {
+      track('lookbook_pdf_download', {
+        catalog: catalog.name,
+        modelCount: productsToExport.length,
+      });
+
+      const lookbookItems = productsToExport.map((p) => {
+        const familyName = isArabic && p.family?.arabicName ? p.family.arabicName : (p.family?.name || '');
+        const primaryImage = p.images?.find((img) => img.isPrimary) || p.images?.[0];
+        return {
+          id: p.id,
+          reference: p.reference,
+          familyName,
+          details: p.details,
+          description: (p as any).description,
+          imageUrl: primaryImage?.mediumUrl || primaryImage?.thumbnailUrl || null,
+          sizeAssortment: (p as any).sizeAssortment || null,
+        };
+      });
+
+      await generatePdfLookbook({
+        title: customTitle || catalog.name,
+        subtitle: catalog.description || undefined,
+        products: lookbookItems,
+        lang,
+        dict,
+        onProgress: (prog) => {
+          setPdfProgress((prev) => ({
+            ...prev,
+            ...prog,
+          }));
+        },
+      });
+
+      setPdfProgress((prev) => ({
+        ...prev,
+        isGenerating: false,
+        isComplete: true,
+        percentage: 100,
+      }));
+    } catch (err: any) {
+      console.error('PDF Generation Error:', err);
+      setPdfProgress((prev) => ({
+        ...prev,
+        isGenerating: false,
+        error: err?.message || 'Erreur lors de la création du document PDF.',
+      }));
+    }
+  };
+
   return (
     <>
       <BulkDownloadModal
         isOpen={isModalOpen}
         progress={downloadProgress}
         onClose={() => setIsModalOpen(false)}
+        lang={lang}
+      />
+
+      <PdfLookbookModal
+        progress={pdfProgress}
+        onClose={() => setPdfProgress((prev) => ({ ...prev, isOpen: false }))}
+        onRetry={() => handleDownloadPdf(selectedProducts.length > 0 ? selectedProducts : allProducts)}
+        dict={dict}
         lang={lang}
       />
 
@@ -233,6 +317,32 @@ export default function CatalogClientView({
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+          {/* PDF Lookbook Download Button */}
+          <button
+            type="button"
+            onClick={() => handleDownloadPdf(allProducts)}
+            className="btn hover-lift"
+            title={isArabic ? 'تنزيل كتالوج PDF عالي الدقة' : 'Télécharger le Lookbook PDF haute résolution'}
+            style={{
+              padding: '0.45rem 1rem',
+              fontSize: '0.85rem',
+              fontWeight: 800,
+              gap: '0.4rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: 'var(--radius-full)',
+              boxShadow: '0 3px 10px rgba(79, 70, 229, 0.3)',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }}>
+              picture_as_pdf
+            </span>
+            <span>{dict?.lookbook?.downloadPdf || (isArabic ? 'كتالوج PDF' : 'Catalogue PDF')}</span>
+          </button>
+
           {/* Download Entire Catalog Button */}
           <button
             type="button"
@@ -246,6 +356,7 @@ export default function CatalogClientView({
               gap: '0.4rem',
               display: 'inline-flex',
               alignItems: 'center',
+              borderRadius: 'var(--radius-full)',
             }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '1.15rem', color: 'var(--primary)' }}>
@@ -269,6 +380,7 @@ export default function CatalogClientView({
               gap: '0.4rem',
               display: 'inline-flex',
               alignItems: 'center',
+              borderRadius: 'var(--radius-full)',
             }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }}>
@@ -522,6 +634,8 @@ export default function CatalogClientView({
                   <Link
                     key={product.id}
                     href={productHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="product-card hover-lift"
                     style={{
                       position: 'relative',
@@ -581,6 +695,32 @@ export default function CatalogClientView({
               {selectedProductIds.size === allProducts.length
                 ? (isArabic ? 'إلغاء الكل' : 'Désélect.')
                 : (isArabic ? 'تحديد الكل' : 'Tout sélect.')}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleDownloadPdf(selectedProducts, `${catalog.name} - Sélection`)}
+              disabled={selectedProducts.length === 0}
+              className="btn hover-lift"
+              style={{
+                padding: '0.4rem 0.85rem',
+                fontSize: '0.82rem',
+                fontWeight: 800,
+                borderRadius: 'var(--radius-full)',
+                opacity: selectedProducts.length === 0 ? 0.5 : 1,
+                cursor: selectedProducts.length === 0 ? 'not-allowed' : 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                color: 'white',
+                border: 'none',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>
+                picture_as_pdf
+              </span>
+              <span>{isArabic ? 'PDF المحدد' : 'PDF'}</span>
             </button>
 
             <button

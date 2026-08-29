@@ -3,9 +3,11 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import SmartImage from './SmartImage';
 import BulkDownloadModal from './BulkDownloadModal';
+import PdfLookbookModal, { PdfProgressState } from './PdfLookbookModal';
 import { useFavorites } from '@/context/FavoritesContext';
 import { useCart } from '@/context/CartContext';
 import { downloadImagesSmartly, ImageToDownload, DownloadProgress } from '@/lib/zipDownloader';
+import { generatePdfLookbook } from '@/lib/pdfLookbookGenerator';
 
 interface FavoritesDrawerProps {
   lang: string;
@@ -26,7 +28,70 @@ export default function FavoritesDrawer({ lang, dict, phoneNumber }: FavoritesDr
     status: 'fetching',
   });
 
+  const [pdfProgress, setPdfProgress] = useState<PdfProgressState>({
+    isOpen: false,
+    isGenerating: false,
+    isComplete: false,
+    current: 0,
+    total: 0,
+    stepName: '',
+    percentage: 0,
+  });
+
   const t = dict?.favorites || {};
+
+  // 1-Click PDF Lookbook Generation for Favorites
+  const handleDownloadLookbookPdf = async () => {
+    if (favorites.length === 0) return;
+
+    setPdfProgress({
+      isOpen: true,
+      isGenerating: true,
+      isComplete: false,
+      current: 0,
+      total: favorites.length,
+      stepName: 'Initialisation du Lookbook...',
+      percentage: 5,
+    });
+
+    try {
+      const lookbookItems = favorites.map((f) => ({
+        id: f.id,
+        reference: f.reference,
+        familyName: f.familyName,
+        imageUrl: f.imageUrl || null,
+      }));
+
+      await generatePdfLookbook({
+        title: isArabic ? 'مفضلاتي' : 'Mes Favoris',
+        subtitle: isArabic ? 'تشكيلة الموديلات المفضلة المختارة' : 'Sélection personnalisée de modèles de gros',
+        products: lookbookItems,
+        lang,
+        dict,
+        settings: { phoneNumber },
+        onProgress: (prog) => {
+          setPdfProgress((prev) => ({
+            ...prev,
+            ...prog,
+          }));
+        },
+      });
+
+      setPdfProgress((prev) => ({
+        ...prev,
+        isGenerating: false,
+        isComplete: true,
+        percentage: 100,
+      }));
+    } catch (err: any) {
+      console.error('PDF Generation Error:', err);
+      setPdfProgress((prev) => ({
+        ...prev,
+        isGenerating: false,
+        error: err?.message || 'Erreur lors de la création du document PDF.',
+      }));
+    }
+  };
 
   // 1-Click WhatsApp Inquiry
   const handleWhatsAppInquiry = () => {
@@ -360,6 +425,32 @@ export default function FavoritesDrawer({ lang, dict, phoneNumber }: FavoritesDr
               gap: '0.65rem',
             }}
           >
+            {/* Download Lookbook PDF Button */}
+            <button
+              type="button"
+              onClick={handleDownloadLookbookPdf}
+              className="btn hover-lift"
+              style={{
+                width: '100%',
+                padding: '0.65rem',
+                fontSize: '0.9rem',
+                fontWeight: 800,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                color: 'white',
+                border: 'none',
+                boxShadow: '0 3px 10px rgba(79, 70, 229, 0.3)',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '1.2rem' }}>
+                picture_as_pdf
+              </span>
+              <span>{dict?.lookbook?.downloadSelectionPdf || (isArabic ? 'تصدير المفضلة إلى كتالوج PDF' : 'Exporter la sélection en PDF')}</span>
+            </button>
+
             {/* Download All Photos Button */}
             <button
               type="button"
@@ -449,6 +540,15 @@ export default function FavoritesDrawer({ lang, dict, phoneNumber }: FavoritesDr
           </div>
         )}
       </div>
+
+      {/* Lookbook PDF Modal */}
+      <PdfLookbookModal
+        progress={pdfProgress}
+        onClose={() => setPdfProgress((prev) => ({ ...prev, isOpen: false }))}
+        onRetry={handleDownloadLookbookPdf}
+        dict={dict}
+        lang={lang}
+      />
 
       {/* Download Progress Modal */}
       <BulkDownloadModal
