@@ -2,6 +2,7 @@ import Link from 'next/link';
 import LanguageSwitcher from './LanguageSwitcher';
 import SearchBar from './SearchBar';
 import CartButton from './CartButton';
+import FavoritesButton from './FavoritesButton';
 
 interface PublicHeaderProps {
   lang: string;
@@ -47,9 +48,10 @@ export default function PublicHeader({ lang, dict }: PublicHeaderProps) {
           </span>
         </Link>
 
-        {/* Search, Cart & Language Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        {/* Search, Favorites, Cart & Language Controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
           <SearchBar dict={dict} lang={lang} />
+          <FavoritesButton lang={lang} dict={dict} />
           <CartButton lang={lang} dict={dict} />
           <LanguageSwitcher currentLang={lang} />
         </div>

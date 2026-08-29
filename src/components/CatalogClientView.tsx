@@ -4,6 +4,7 @@ import Link from 'next/link';
 import SmartImage from './SmartImage';
 import CategoryPillSlider from './CategoryPillSlider';
 import BulkDownloadModal from './BulkDownloadModal';
+import FavoriteButton from './FavoriteButton';
 import { downloadImagesSmartly, ImageToDownload, DownloadProgress } from '@/lib/zipDownloader';
 import { track } from '@vercel/analytics';
 
@@ -412,6 +413,19 @@ export default function CatalogClientView({
                           </span>
                         )}
                       </div>
+                    )}
+
+                    {/* Favorite Heart Button (Only when not in selection mode) */}
+                    {!isSelectionMode && (
+                      <FavoriteButton
+                        product={{
+                          id: product.id,
+                          reference: product.reference,
+                          familyName: isArabic && product.family.arabicName ? product.family.arabicName : product.family.name,
+                          imageUrl: primaryImage?.thumbnailUrl || primaryImage?.mediumUrl,
+                        }}
+                        size="sm"
+                      />
                     )}
 
                     {/* Image Thumbnail */}

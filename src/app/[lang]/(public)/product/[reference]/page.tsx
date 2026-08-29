@@ -8,6 +8,8 @@ import ProductTracker from '@/components/ProductTracker';
 import PublicHeader from '@/components/PublicHeader';
 import SimilarProductsCarousel from '@/components/SimilarProductsCarousel';
 import AddToCartButton from '@/components/AddToCartButton';
+import CartonSizeBreakdown from '@/components/CartonSizeBreakdown';
+import FavoriteButton from '@/components/FavoriteButton';
 
 export default async function ProductPage({ params }: { params: Promise<{ reference: string, lang: string }> }) {
   const { reference, lang } = await params;
@@ -170,6 +172,14 @@ export default async function ProductPage({ params }: { params: Promise<{ refere
                 </div>
               </div>
 
+              {/* Wholesale Carton Size Assortment Breakdown (Only shown if configured by admin) */}
+              <CartonSizeBreakdown 
+                lang={lang} 
+                dict={dict} 
+                assortment={product.sizeAssortment as any}
+                initialCartons={1} 
+              />
+
               {/* Carton Order Action */}
               <AddToCartButton
                 product={{
@@ -182,19 +192,32 @@ export default async function ProductPage({ params }: { params: Promise<{ refere
                 lang={lang}
               />
 
-              <div style={{ marginTop: '0.75rem' }}>
-                {settings?.phoneNumber ? (
-                  <WhatsAppButton 
-                    phoneNumber={settings.phoneNumber} 
-                    inquireText={dict.product.inquire} 
-                    reference={product.reference} 
-                  />
-                ) : (
-                  <button className="btn btn-primary" style={{ width: '100%', padding: '0.9rem 1.5rem', fontSize: '1.05rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>chat</span>
-                    {dict.product.inquire}
-                  </button>
-                )}
+              <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
+                <div style={{ flex: 1 }}>
+                  {settings?.phoneNumber ? (
+                    <WhatsAppButton 
+                      phoneNumber={settings.phoneNumber} 
+                      inquireText={dict.product.inquire} 
+                      reference={product.reference} 
+                    />
+                  ) : (
+                    <button className="btn btn-primary" style={{ width: '100%', padding: '0.9rem 1.5rem', fontSize: '1.05rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '1.25rem' }}>chat</span>
+                      {dict.product.inquire}
+                    </button>
+                  )}
+                </div>
+
+                <FavoriteButton
+                  product={{
+                    id: product.id,
+                    reference: product.reference,
+                    familyName: displayFamilyName,
+                    imageUrl: product.images[0]?.thumbnailUrl || product.images[0]?.mediumUrl,
+                  }}
+                  variant="inline"
+                  size="lg"
+                />
               </div>
             </div>
           </div>

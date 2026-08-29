@@ -41,6 +41,7 @@ model Product {
   reference   String   @unique
   details     String?
   description String?
+  sizeAssortment   Json?
   isActive         Boolean        @default(true)
   views            Int            @default(0)
   aiSimilarCache   Json?

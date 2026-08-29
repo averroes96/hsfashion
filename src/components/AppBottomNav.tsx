@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { track } from '@vercel/analytics';
 import SkuSearchModal from './SkuSearchModal';
 import { useCart } from '@/context/CartContext';
+import { useFavorites } from '@/context/FavoritesContext';
 
 interface AppBottomNavProps {
   lang: string;
@@ -17,6 +18,7 @@ export default function AppBottomNav({ lang, dict, phoneNumber }: AppBottomNavPr
   const router = useRouter();
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const { openCart, totalCartons, totalItems } = useCart();
+  const { totalFavoritesCount, setIsFavoritesOpen } = useFavorites();
 
   // Hide bottom nav on admin routes
   if (pathname?.includes('/admin')) {
@@ -31,15 +33,6 @@ export default function AppBottomNav({ lang, dict, phoneNumber }: AppBottomNavPr
     try {
       track('sku_search_opened', { source: 'bottom_nav_fab', lang });
     } catch {}
-  };
-
-  const handleSwitchLanguage = () => {
-    const targetLang = isArabic ? 'fr' : 'ar';
-    try {
-      track('language_switched', { from: lang, to: targetLang, source: 'bottom_nav' });
-    } catch {}
-    const newPath = pathname.replace(`/${lang}`, `/${targetLang}`);
-    router.push(newPath);
   };
 
   const whatsappHref = phoneNumber
@@ -64,7 +57,7 @@ export default function AppBottomNav({ lang, dict, phoneNumber }: AppBottomNavPr
             fontSize: '0.72rem',
             fontWeight: isHome ? 700 : 500,
             textDecoration: 'none',
-            minWidth: '54px',
+            minWidth: '50px',
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '1.4rem' }}>
@@ -90,7 +83,7 @@ export default function AppBottomNav({ lang, dict, phoneNumber }: AppBottomNavPr
             fontWeight: 600,
             cursor: 'pointer',
             padding: 0,
-            minWidth: '54px',
+            minWidth: '50px',
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '1.4rem', color: 'var(--primary)' }}>
@@ -144,7 +137,59 @@ export default function AppBottomNav({ lang, dict, phoneNumber }: AppBottomNavPr
           </span>
         </div>
 
-        {/* Tab 4: WhatsApp Wholesale Hotline */}
+        {/* Tab 4: Favoris / Wishlist */}
+        <button
+          type="button"
+          onClick={() => setIsFavoritesOpen(true)}
+          className="app-tap-target"
+          style={{
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '2px',
+            background: 'transparent',
+            border: 'none',
+            color: totalFavoritesCount > 0 ? '#e11d48' : 'var(--text-muted)',
+            fontSize: '0.72rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            padding: 0,
+            minWidth: '50px',
+          }}
+        >
+          <span
+            className="material-symbols-outlined"
+            style={{
+              fontSize: '1.4rem',
+              fontVariationSettings: totalFavoritesCount > 0 ? "'FILL' 1, 'wght' 700" : "'FILL' 0, 'wght' 500",
+            }}
+          >
+            favorite
+          </span>
+          {totalFavoritesCount > 0 && (
+            <span
+              style={{
+                position: 'absolute',
+                top: '-2px',
+                right: isArabic ? 'auto' : '10px',
+                left: isArabic ? '10px' : 'auto',
+                background: '#e11d48',
+                color: 'white',
+                borderRadius: '999px',
+                padding: '0 4px',
+                fontSize: '0.65rem',
+                fontWeight: 900,
+                lineHeight: 1.2,
+              }}
+            >
+              {totalFavoritesCount}
+            </span>
+          )}
+          <span>{isArabic ? 'المفضلة' : 'Favoris'}</span>
+        </button>
+
+        {/* Tab 5: WhatsApp Wholesale Hotline */}
         <a
           href={whatsappHref}
           target="_blank"
@@ -164,7 +209,7 @@ export default function AppBottomNav({ lang, dict, phoneNumber }: AppBottomNavPr
             fontSize: '0.72rem',
             fontWeight: 600,
             textDecoration: 'none',
-            minWidth: '54px',
+            minWidth: '50px',
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '1.4rem' }}>
@@ -172,32 +217,6 @@ export default function AppBottomNav({ lang, dict, phoneNumber }: AppBottomNavPr
           </span>
           <span>{isArabic ? 'واتساب' : 'WhatsApp'}</span>
         </a>
-
-        {/* Tab 5: Language Switcher */}
-        <button
-          type="button"
-          onClick={handleSwitchLanguage}
-          className="app-tap-target"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '2px',
-            background: 'transparent',
-            border: 'none',
-            color: 'var(--text-muted)',
-            fontSize: '0.72rem',
-            fontWeight: 600,
-            cursor: 'pointer',
-            padding: 0,
-            minWidth: '54px',
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: '1.4rem' }}>
-            translate
-          </span>
-          <span>{isArabic ? 'Français' : 'العربية'}</span>
-        </button>
       </nav>
 
       {/* SKU Reference Search Modal */}

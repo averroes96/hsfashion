@@ -2,6 +2,62 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
+import { SizeAssortmentItem } from '@/components/AdminAssortmentConfig';
+
+export const BULK_ASSORTMENT_PRESETS: { id: string; label: string; shortLabel: string; items: SizeAssortmentItem[] | null }[] = [
+  { id: 'none', label: 'Aucun (Non configuré)', shortLabel: 'Sans', items: null },
+  {
+    id: '12',
+    label: '👠 12 paires (2x 36-41)',
+    shortLabel: '12 paires',
+    items: [
+      { size: '36', ratio: 2 },
+      { size: '37', ratio: 2 },
+      { size: '38', ratio: 2 },
+      { size: '39', ratio: 2 },
+      { size: '40', ratio: 2 },
+      { size: '41', ratio: 2 },
+    ],
+  },
+  {
+    id: '15',
+    label: '👡 15 paires (3x 36-40)',
+    shortLabel: '15 paires',
+    items: [
+      { size: '36', ratio: 3 },
+      { size: '37', ratio: 3 },
+      { size: '38', ratio: 3 },
+      { size: '39', ratio: 3 },
+      { size: '40', ratio: 3 },
+    ],
+  },
+  {
+    id: '18',
+    label: '👢 18 paires (3x 36-41)',
+    shortLabel: '18 paires',
+    items: [
+      { size: '36', ratio: 3 },
+      { size: '37', ratio: 3 },
+      { size: '38', ratio: 3 },
+      { size: '39', ratio: 3 },
+      { size: '40', ratio: 3 },
+      { size: '41', ratio: 3 },
+    ],
+  },
+  {
+    id: '24',
+    label: '📦 24 paires (4x 36-41)',
+    shortLabel: '24 paires',
+    items: [
+      { size: '36', ratio: 4 },
+      { size: '37', ratio: 4 },
+      { size: '38', ratio: 4 },
+      { size: '39', ratio: 4 },
+      { size: '40', ratio: 4 },
+      { size: '41', ratio: 4 },
+    ],
+  },
+];
 
 interface StagedProduct {
   id: string;
@@ -10,6 +66,7 @@ interface StagedProduct {
   reference: string;
   familyId: string;
   catalogIds: string[];
+  sizeAssortment: SizeAssortmentItem[] | null;
   details: string;
   description: string;
   status: 'ready' | 'uploading' | 'success' | 'error';
@@ -27,6 +84,7 @@ export default function AdminBulkUploadClient({ dict }: { dict: any }) {
   // Global Presets
   const [globalFamilyId, setGlobalFamilyId] = useState('');
   const [globalCatalogIds, setGlobalCatalogIds] = useState<string[]>([]);
+  const [globalAssortmentId, setGlobalAssortmentId] = useState<string>('none');
   
   // Staging Queue
   const [queue, setQueue] = useState<StagedProduct[]>([]);
@@ -64,7 +122,12 @@ export default function AdminBulkUploadClient({ dict }: { dict: any }) {
     }
   };
 
+  const getGlobalAssortmentItems = () => {
+    return BULK_ASSORTMENT_PRESETS.find((p) => p.id === globalAssortmentId)?.items || null;
+  };
+
   const handleAddFiles = (selectedFiles: File[]) => {
+    const defaultAssortment = getGlobalAssortmentItems();
     const newItems: StagedProduct[] = selectedFiles.map((file) => ({
       id: Math.random().toString(36).substring(2, 9) + Date.now().toString(36),
       file,
@@ -72,6 +135,7 @@ export default function AdminBulkUploadClient({ dict }: { dict: any }) {
       reference: '',
       familyId: globalFamilyId,
       catalogIds: [...globalCatalogIds],
+      sizeAssortment: defaultAssortment ? JSON.parse(JSON.stringify(defaultAssortment)) : null,
       details: '',
       description: '',
       status: 'ready',
@@ -124,11 +188,13 @@ export default function AdminBulkUploadClient({ dict }: { dict: any }) {
   };
 
   const applyGlobalPresetsToAll = () => {
+    const defaultAssortment = getGlobalAssortmentItems();
     setQueue((prev) =>
       prev.map((item) => ({
         ...item,
         familyId: globalFamilyId,
         catalogIds: [...globalCatalogIds],
+        sizeAssortment: defaultAssortment ? JSON.parse(JSON.stringify(defaultAssortment)) : null,
       }))
     );
   };
@@ -272,6 +338,7 @@ export default function AdminBulkUploadClient({ dict }: { dict: any }) {
             description: item.description || null,
             familyId: item.familyId,
             catalogIds: item.catalogIds,
+            sizeAssortment: item.sizeAssortment || null,
             images: [uploadedImage],
           }),
         });
@@ -380,6 +447,30 @@ export default function AdminBulkUploadClient({ dict }: { dict: any }) {
                   >
                     <span>{isSelected ? '✓' : '+'}</span>
                     <span>{c.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Default Carton Assortment */}
+          <div className="form-group" style={{ margin: 0 }}>
+            <label>📦 Assortiment par carton par défaut</label>
+            <div className="catalog-chip-grid">
+              {BULK_ASSORTMENT_PRESETS.map((preset) => {
+                const isSelected = globalAssortmentId === preset.id;
+                return (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => setGlobalAssortmentId(preset.id)}
+                    className={`catalog-chip ${isSelected ? 'selected' : ''}`}
+                    style={{
+                      borderColor: isSelected ? 'var(--primary)' : undefined,
+                    }}
+                  >
+                    <span>{isSelected ? '✓' : ''}</span>
+                    <span>{preset.shortLabel}</span>
                   </button>
                 );
               })}
@@ -585,6 +676,51 @@ export default function AdminBulkUploadClient({ dict }: { dict: any }) {
                             }}
                           >
                             {checked ? '✓ ' : ''}{c.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Carton Assortment Selector */}
+                  <div style={{ gridColumn: '1 / -1', marginTop: '2px' }}>
+                    <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, marginInlineEnd: '0.25rem' }}>
+                        📦 Carton:
+                      </span>
+                      {BULK_ASSORTMENT_PRESETS.map((preset) => {
+                        const itemAssortmentCount = item.sizeAssortment
+                          ? item.sizeAssortment.reduce((sum, s) => sum + (Number(s.ratio) || 0), 0)
+                          : 0;
+                        const presetCount = preset.items
+                          ? preset.items.reduce((sum, s) => sum + (Number(s.ratio) || 0), 0)
+                          : 0;
+                        const isSelected =
+                          (!item.sizeAssortment && preset.id === 'none') ||
+                          (item.sizeAssortment && presetCount === itemAssortmentCount && preset.id !== 'none');
+
+                        return (
+                          <button
+                            key={preset.id}
+                            type="button"
+                            disabled={item.status === 'success' || isUploading}
+                            onClick={() =>
+                              updateQueueItem(item.id, {
+                                sizeAssortment: preset.items ? JSON.parse(JSON.stringify(preset.items)) : null,
+                              })
+                            }
+                            style={{
+                              fontSize: '0.72rem',
+                              padding: '0.2rem 0.55rem',
+                              borderRadius: 'var(--radius-full)',
+                              border: `1px solid ${isSelected ? 'var(--primary)' : 'var(--border-color)'}`,
+                              background: isSelected ? 'var(--primary-light)' : 'var(--bg-color)',
+                              color: isSelected ? 'var(--primary)' : 'var(--text-muted)',
+                              cursor: item.status === 'success' || isUploading ? 'default' : 'pointer',
+                              fontWeight: isSelected ? 800 : 500,
+                            }}
+                          >
+                            {isSelected ? '✓ ' : ''}{preset.shortLabel}
                           </button>
                         );
                       })}

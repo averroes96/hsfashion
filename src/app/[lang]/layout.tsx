@@ -42,7 +42,9 @@ import prisma from '@/lib/prisma';
 import { getDictionary, Locale } from '@/lib/dictionaries';
 import AppBottomNav from "@/components/AppBottomNav";
 import { CartProvider } from "@/context/CartContext";
+import { FavoritesProvider } from "@/context/FavoritesContext";
 import CartDrawer from "@/components/CartDrawer";
+import FavoritesDrawer from "@/components/FavoritesDrawer";
 
 export default async function RootLayout({
   children,
@@ -82,14 +84,17 @@ export default async function RootLayout({
       </head>
       <body className={mainFontClass}>
         <AppSplashScreen />
-        <CartProvider>
-          <PromoBanner message={settings?.promoMessage} />
-          {children}
-          <AppBottomNav lang={lang} dict={dict} phoneNumber={settings?.phoneNumber} />
-          <CartDrawer lang={lang} dict={dict} />
-          <Analytics />
-          <SpeedInsights />
-        </CartProvider>
+        <FavoritesProvider>
+          <CartProvider>
+            <PromoBanner message={settings?.promoMessage} />
+            {children}
+            <AppBottomNav lang={lang} dict={dict} phoneNumber={settings?.phoneNumber} />
+            <CartDrawer lang={lang} dict={dict} />
+            <FavoritesDrawer lang={lang} dict={dict} phoneNumber={settings?.phoneNumber} />
+            <Analytics />
+            <SpeedInsights />
+          </CartProvider>
+        </FavoritesProvider>
       </body>
     </html>
   );

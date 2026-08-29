@@ -214,5 +214,29 @@
     "orderDate": "Date",
     "updateSuccess": "Statut mis à jour avec succès !",
     "deleteConfirm": "Voulez-vous vraiment supprimer cette commande ?"
+  },
+  "favorites": {
+    "title": "Mes Favoris",
+    "subtitle": "Vos modèles sauvegardés pour votre sélection de gros",
+    "emptyTitle": "Aucun modèle favori",
+    "emptyDesc": "Cliquez sur le cœur pour sauvegarder vos modèles préférés et les retrouver facilement ici.",
+    "downloadAll": "Télécharger les photos",
+    "inquireWhatsapp": "Demander la sélection sur WhatsApp",
+    "addAllToCart": "Tout ajouter à la commande",
+    "clearAll": "Vider les favoris",
+    "addedToast": "Ajouté aux favoris ❤️",
+    "removedToast": "Retiré des favoris",
+    "modelsCount": "{count} modèles sélectionnés"
+  },
+  "cartonBreakdown": {
+    "title": "Répartition des pointures par carton",
+    "subtitle": "Assortiment standard d'usine",
+    "pairs": "paires",
+    "pairsPerCarton": "8 paires / carton",
+    "size": "Pointure",
+    "qty": "Qté",
+    "totalPairs": "Total",
+    "multiplier": "Calcul pour {cartons} cartons : {pairs} paires au total",
+    "guaranteed": "Assortiment standard prêt pour la vente en boutique"
   }
 }

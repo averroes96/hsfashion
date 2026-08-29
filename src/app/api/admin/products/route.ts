@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     
     // We expect body to have product fields AND an array of images
-    const { reference, details, description, familyId, images, catalogIds } = body;
+    const { reference, details, description, familyId, images, catalogIds, sizeAssortment } = body;
 
     const product = await prisma.product.create({
       data: {
@@ -34,6 +34,7 @@ export async function POST(request: Request) {
         details,
         description,
         familyId,
+        sizeAssortment: sizeAssortment || null,
         catalogs: catalogIds?.length ? {
           connect: catalogIds.map((id: string) => ({ id }))
         } : undefined,
