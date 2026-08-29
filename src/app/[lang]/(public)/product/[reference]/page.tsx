@@ -217,6 +217,8 @@ export default async function ProductPage({ params }: { params: Promise<{ refere
                   }}
                   variant="inline"
                   size="lg"
+                  dict={dict}
+                  lang={lang}
                 />
               </div>
             </div>

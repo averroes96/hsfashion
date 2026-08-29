@@ -385,6 +385,8 @@ export default function InfiniteProductFeed({
                     imageUrl: primaryImage?.thumbnailUrl || primaryImage?.mediumUrl,
                   }}
                   size="sm"
+                  dict={dict}
+                  lang={lang}
                 />
               )}
 

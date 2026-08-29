@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import { useParams } from 'next/navigation';
 import { useFavorites } from '@/context/FavoritesContext';
 
 interface FavoriteButtonProps {
@@ -11,15 +12,27 @@ interface FavoriteButtonProps {
   };
   size?: 'sm' | 'md' | 'lg';
   variant?: 'floating' | 'inline';
+  dict?: any;
+  lang?: string;
 }
 
 export default function FavoriteButton({
   product,
   size = 'md',
   variant = 'floating',
+  dict,
+  lang: propLang,
 }: FavoriteButtonProps) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const [isAnimate, setIsAnimate] = useState(false);
+  const params = useParams();
+  
+  const currentLang = propLang || (params?.lang as string) || 'fr';
+  const isArabic = currentLang === 'ar';
+
+  const addText = dict?.favorites?.add || (isArabic ? 'إضافة إلى المفضلة' : 'Ajouter aux favoris');
+  const addedText = dict?.favorites?.added || (isArabic ? 'في المفضلة' : 'Favori');
+  const removeText = dict?.favorites?.remove || (isArabic ? 'حذف من المفضلة' : 'Retirer des favoris');
 
   const favorited = isFavorite(product.id);
 
@@ -56,7 +69,7 @@ export default function FavoriteButton({
           transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
           transform: isAnimate ? 'scale(1.15)' : 'scale(1)',
         }}
-        title={favorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+        title={favorited ? removeText : addText}
       >
         <span
           className="material-symbols-outlined"
@@ -69,7 +82,7 @@ export default function FavoriteButton({
         >
           favorite
         </span>
-        <span>{favorited ? 'Favori' : 'Ajouter aux favoris'}</span>
+        <span>{favorited ? addedText : addText}</span>
       </button>
     );
   }
@@ -81,7 +94,8 @@ export default function FavoriteButton({
       style={{
         position: 'absolute',
         top: '8px',
-        right: '8px',
+        right: isArabic ? 'auto' : '8px',
+        left: isArabic ? '8px' : 'auto',
         zIndex: 15,
         width: buttonDimensions,
         height: buttonDimensions,
@@ -100,7 +114,7 @@ export default function FavoriteButton({
         transform: isAnimate ? 'scale(1.25)' : 'scale(1)',
         transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
       }}
-      title={favorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+      title={favorited ? removeText : addText}
     >
       <span
         className="material-symbols-outlined"

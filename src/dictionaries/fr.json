@@ -218,6 +218,9 @@
   "favorites": {
     "title": "Mes Favoris",
     "subtitle": "Vos modèles sauvegardés pour votre sélection de gros",
+    "add": "Ajouter aux favoris",
+    "added": "Favori",
+    "remove": "Retirer des favoris",
     "emptyTitle": "Aucun modèle favori",
     "emptyDesc": "Cliquez sur le cœur pour sauvegarder vos modèles préférés et les retrouver facilement ici.",
     "downloadAll": "Télécharger les photos",

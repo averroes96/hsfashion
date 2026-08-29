@@ -425,6 +425,8 @@ export default function CatalogClientView({
                           imageUrl: primaryImage?.thumbnailUrl || primaryImage?.mediumUrl,
                         }}
                         size="sm"
+                        dict={dict}
+                        lang={lang}
                       />
                     )}
 
