@@ -260,5 +260,32 @@
     "orderDirectly": "Scanner pour commander",
     "wholesaleTerms": "Conditions de Vente en Gros",
     "wholesaleTermsDesc": "Vente réservée aux professionnels et boutiques. Commande par carton complet. Livraison express et suivi personnalisé."
+  },
+  "analytics": {
+    "title": "Statistiques & Insights B2B",
+    "subtitle": "Visibilité complète sur les tendances de consultation, volumes de cartons et demandes clients",
+    "exportReport": "Exporter Rapport Excel/CSV",
+    "exportOrders": "Exporter Commandes",
+    "exportProducts": "Exporter Produits & Vues",
+    "totalCartons": "Total Cartons Commandés",
+    "totalOrders": "Total Commandes",
+    "totalViews": "Vues Totales Catalogue",
+    "avgCartonsPerOrder": "Moyenne Cartons / Commande",
+    "topViewed": "Top 10 Modèles les Plus Consultés (Intérêt Acheteurs)",
+    "topOrdered": "Top 10 Modèles les Plus Commandés (Volume Gros)",
+    "orderTrends": "Évolution des Volumes de Commandes & Cartons",
+    "familyShare": "Répartition par Famille & Catégorie",
+    "cityBreakdown": "Répartition Géographique des Commandes",
+    "views": "vues",
+    "cartons": "cartons",
+    "orders": "commandes",
+    "rank": "Rang",
+    "product": "Produit",
+    "category": "Catégorie",
+    "volume": "Volume",
+    "share": "Part",
+    "last30Days": "30 Derniers Jours",
+    "last12Weeks": "12 Dernières Semaines",
+    "allTime": "Tout l'historique"
   }
 }

@@ -67,9 +67,17 @@ export default function AdminDashboardClient({ dict }: { dict: any }) {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <h1>{dict.admin.dashboard}</h1>
-        <Link href={`/${lang}/admin/products/new`} className="btn">{dict.admin.addNewProduct}</Link>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <Link href={`/${lang}/admin/analytics`} className="btn btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', borderRadius: 'var(--radius-full)' }}>
+            <span>📊</span>
+            <span>{dict?.analytics?.title || 'Statistiques & Insights'}</span>
+          </Link>
+          <Link href={`/${lang}/admin/products/new`} className="btn" style={{ borderRadius: 'var(--radius-full)' }}>
+            + {dict.admin.addNewProduct}
+          </Link>
+        </div>
       </div>
 
       <div className="admin-card" style={{ marginTop: '2rem' }}>

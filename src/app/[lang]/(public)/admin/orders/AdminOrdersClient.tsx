@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { exportOrdersToCsv } from '@/lib/csvExporter';
 
 interface OrderItem {
   id: string;
@@ -209,15 +210,36 @@ export default function AdminOrdersClient({ dict, lang }: AdminOrdersClientProps
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={fetchOrders}
-          className="btn btn-outline"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
-        >
-          <span>🔄</span>
-          <span>{dict?.pagination?.retry || 'Actualiser'}</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={() => exportOrdersToCsv(orders)}
+            disabled={orders.length === 0}
+            className="btn btn-outline hover-lift"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              borderRadius: 'var(--radius-full)',
+              background: 'var(--surface)',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1.15rem', color: '#16a34a' }}>
+              table_view
+            </span>
+            <span>{dict?.analytics?.exportOrders || 'Exporter Excel/CSV'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={fetchOrders}
+            className="btn btn-outline"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', borderRadius: 'var(--radius-full)' }}
+          >
+            <span>🔄</span>
+            <span>{dict?.pagination?.retry || 'Actualiser'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Filter Tabs */}

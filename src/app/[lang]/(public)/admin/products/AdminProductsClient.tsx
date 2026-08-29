@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { exportProductsPerformanceToCsv } from '@/lib/csvExporter';
 
 export default function AdminProductsClient({ dict }: { dict: any }) {
   const params = useParams();
@@ -155,11 +156,23 @@ export default function AdminProductsClient({ dict }: { dict: any }) {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-          <Link href={`/${lang}/admin/products/bulk`} className="btn btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+          <button
+            type="button"
+            onClick={() => exportProductsPerformanceToCsv(products)}
+            disabled={products.length === 0}
+            className="btn btn-outline hover-lift"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', borderRadius: 'var(--radius-full)' }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1.15rem', color: '#0284c7' }}>
+              table_view
+            </span>
+            <span>{dict?.analytics?.exportProducts || 'Exporter CSV'}</span>
+          </button>
+          <Link href={`/${lang}/admin/products/bulk`} className="btn btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', borderRadius: 'var(--radius-full)' }}>
             <span>🚀</span>
             <span>{dict?.admin?.bulkUpload || 'Import Multiple'}</span>
           </Link>
-          <Link href={`/${lang}/admin/products/new`} className="btn">
+          <Link href={`/${lang}/admin/products/new`} className="btn" style={{ borderRadius: 'var(--radius-full)' }}>
             + {dict.admin.addNewProduct}
           </Link>
         </div>
