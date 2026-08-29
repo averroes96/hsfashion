@@ -40,7 +40,7 @@ export default function AppSplashScreen() {
         position: 'fixed',
         inset: 0,
         zIndex: 99999,
-        backgroundColor: '#fed033',
+        background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 55%, #312e81 100%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -68,9 +68,9 @@ export default function AppSplashScreen() {
             height: '120px',
             borderRadius: '28px',
             overflow: 'hidden',
-            boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.25)',
-            border: '3px solid rgba(255, 255, 255, 0.6)',
-            background: '#fed033',
+            boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 30px rgba(79, 70, 229, 0.3)',
+            border: '2px solid rgba(255, 255, 255, 0.25)',
+            background: '#4f46e5',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -91,9 +91,9 @@ export default function AppSplashScreen() {
         <div style={{ textAlign: 'center' }}>
           <h1
             style={{
-              fontSize: '1.75rem',
+              fontSize: '1.85rem',
               fontWeight: 900,
-              color: '#0f172a',
+              color: '#ffffff',
               letterSpacing: '0.04em',
               margin: '0 0 0.25rem 0',
               fontFamily: 'system-ui, -apple-system, sans-serif',
@@ -105,7 +105,7 @@ export default function AppSplashScreen() {
             style={{
               fontSize: '0.85rem',
               fontWeight: 700,
-              color: 'rgba(15, 23, 42, 0.75)',
+              color: '#a5b4fc',
               letterSpacing: '0.08em',
               textTransform: 'uppercase',
               margin: 0,
@@ -121,7 +121,7 @@ export default function AppSplashScreen() {
             width: '140px',
             height: '4px',
             borderRadius: '999px',
-            background: 'rgba(0, 0, 0, 0.12)',
+            background: 'rgba(255, 255, 255, 0.12)',
             overflow: 'hidden',
             marginTop: '0.5rem',
             position: 'relative',
@@ -131,7 +131,7 @@ export default function AppSplashScreen() {
             style={{
               width: '50%',
               height: '100%',
-              background: '#0f172a',
+              background: 'linear-gradient(90deg, #4f46e5, #818cf8)',
               borderRadius: '999px',
               animation: 'shimmer 1.2s infinite ease-in-out',
             }}
