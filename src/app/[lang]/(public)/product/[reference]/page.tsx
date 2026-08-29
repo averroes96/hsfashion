@@ -10,6 +10,7 @@ import SimilarProductsCarousel from '@/components/SimilarProductsCarousel';
 import AddToCartButton from '@/components/AddToCartButton';
 import CartonSizeBreakdown from '@/components/CartonSizeBreakdown';
 import FavoriteButton from '@/components/FavoriteButton';
+import ProductBadge from '@/components/ProductBadge';
 
 export default async function ProductPage({ params }: { params: Promise<{ reference: string, lang: string }> }) {
   const { reference, lang } = await params;
@@ -92,8 +93,13 @@ export default async function ProductPage({ params }: { params: Promise<{ refere
                 <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', lineHeight: 1.2, margin: 0, fontWeight: 800 }}>
                   {product.reference}
                 </h1>
-                <div className="badge" style={{ marginTop: '0.25rem' }}>
-                  {displayFamilyName}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginTop: '0.25rem', flexWrap: 'wrap' }}>
+                  {product.badge && (
+                    <ProductBadge badge={product.badge} lang={lang} dict={dict} size="md" />
+                  )}
+                  <div className="badge">
+                    {displayFamilyName}
+                  </div>
                 </div>
               </div>
               

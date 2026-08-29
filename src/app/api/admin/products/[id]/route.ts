@@ -44,6 +44,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
           connect: { id: body.familyId }
         } : undefined,
         sizeAssortment: body.sizeAssortment !== undefined ? body.sizeAssortment : undefined,
+        badge: body.badge !== undefined ? body.badge : undefined,
         isActive: body.isActive !== undefined ? body.isActive : undefined,
         catalogs: body.catalogIds ? {
           connect: body.catalogIds.map((cId: string) => ({ id: cId }))

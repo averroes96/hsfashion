@@ -19,6 +19,7 @@ export default function AdminNewProductClient({ dict }: { dict: any }) {
   const [details, setDetails] = useState('');
   const [description, setDescription] = useState('');
   const [sizeAssortment, setSizeAssortment] = useState<SizeAssortmentItem[] | null>(null);
+  const [badge, setBadge] = useState<string | null>(null);
   
   const [files, setFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -192,6 +193,7 @@ export default function AdminNewProductClient({ dict }: { dict: any }) {
           familyId,
           catalogIds,
           sizeAssortment,
+          badge: badge || null,
           images: uploadedImages
         })
       });
@@ -598,7 +600,49 @@ export default function AdminNewProductClient({ dict }: { dict: any }) {
             />
           </div>
 
-          {/* 6. Assortment / Packaging Configuration Section */}
+          {/* 6. Commercial Badge Selector */}
+          <div className="form-group" style={{ marginBottom: '1.75rem' }}>
+            <label style={{ fontSize: '0.88rem', fontWeight: 800, color: 'var(--text-main)', display: 'block', marginBottom: '0.5rem' }}>
+              🏷️ {dict?.badges?.title || 'Badge Commercial / Mise en avant'}
+            </label>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {[
+                { id: null, label: dict?.badges?.none || 'Aucun', icon: '🚫' },
+                { id: 'NEW', label: dict?.badges?.new || 'Nouveau', icon: '✨', bg: 'rgba(16, 185, 129, 0.12)', border: '#10b981', color: '#047857' },
+                { id: 'BEST_SELLER', label: dict?.badges?.bestSeller || 'Best-Seller', icon: '🔥', bg: 'rgba(245, 158, 11, 0.12)', border: '#f59e0b', color: '#b45309' },
+                { id: 'LIMITED_STOCK', label: dict?.badges?.limitedStock || 'Stock Limité', icon: '⚡', bg: 'rgba(225, 29, 72, 0.12)', border: '#e11d48', color: '#be123c' },
+                { id: 'PROMO', label: dict?.badges?.promo || 'Offre Spéciale', icon: '🏷️', bg: 'rgba(79, 70, 229, 0.12)', border: '#4f46e5', color: '#4338ca' },
+              ].map((b) => {
+                const isSelected = badge === b.id;
+                return (
+                  <button
+                    key={b.id || 'none'}
+                    type="button"
+                    onClick={() => setBadge(b.id)}
+                    style={{
+                      padding: '0.5rem 0.95rem',
+                      borderRadius: 'var(--radius-full)',
+                      border: isSelected ? `2px solid ${b.border || 'var(--primary)'}` : '1px solid var(--border-color)',
+                      background: isSelected ? (b.bg || 'var(--primary-light)') : 'white',
+                      color: isSelected ? (b.color || 'var(--primary)') : 'var(--text-main)',
+                      fontWeight: isSelected ? 800 : 600,
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    <span>{b.icon}</span>
+                    <span>{b.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 7. Assortment / Packaging Configuration Section */}
           <AdminAssortmentConfig
             value={sizeAssortment}
             onChange={setSizeAssortment}

@@ -67,6 +67,7 @@ interface StagedProduct {
   familyId: string;
   catalogIds: string[];
   sizeAssortment: SizeAssortmentItem[] | null;
+  badge: string | null;
   details: string;
   description: string;
   status: 'ready' | 'uploading' | 'success' | 'error';
@@ -85,6 +86,7 @@ export default function AdminBulkUploadClient({ dict }: { dict: any }) {
   const [globalFamilyId, setGlobalFamilyId] = useState('');
   const [globalCatalogIds, setGlobalCatalogIds] = useState<string[]>([]);
   const [globalAssortmentId, setGlobalAssortmentId] = useState<string>('none');
+  const [globalBadge, setGlobalBadge] = useState<string | null>(null);
   
   // Staging Queue
   const [queue, setQueue] = useState<StagedProduct[]>([]);
@@ -136,6 +138,7 @@ export default function AdminBulkUploadClient({ dict }: { dict: any }) {
       familyId: globalFamilyId,
       catalogIds: [...globalCatalogIds],
       sizeAssortment: defaultAssortment ? JSON.parse(JSON.stringify(defaultAssortment)) : null,
+      badge: globalBadge || null,
       details: '',
       description: '',
       status: 'ready',
@@ -195,6 +198,7 @@ export default function AdminBulkUploadClient({ dict }: { dict: any }) {
         familyId: globalFamilyId,
         catalogIds: [...globalCatalogIds],
         sizeAssortment: defaultAssortment ? JSON.parse(JSON.stringify(defaultAssortment)) : null,
+        badge: globalBadge || null,
       }))
     );
   };
@@ -339,6 +343,7 @@ export default function AdminBulkUploadClient({ dict }: { dict: any }) {
             familyId: item.familyId,
             catalogIds: item.catalogIds,
             sizeAssortment: item.sizeAssortment || null,
+            badge: item.badge || null,
             images: [uploadedImage],
           }),
         });
@@ -471,6 +476,38 @@ export default function AdminBulkUploadClient({ dict }: { dict: any }) {
                   >
                     <span>{isSelected ? '✓' : ''}</span>
                     <span>{preset.shortLabel}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Default Commercial Badge */}
+          <div className="form-group" style={{ margin: 0 }}>
+            <label>🏷️ Badge commercial par défaut</label>
+            <div className="catalog-chip-grid">
+              {[
+                { id: null, label: 'Aucun', icon: '🚫' },
+                { id: 'NEW', label: 'Nouveau', icon: '✨' },
+                { id: 'BEST_SELLER', label: 'Best-Seller', icon: '🔥' },
+                { id: 'LIMITED_STOCK', label: 'Stock Limité', icon: '⚡' },
+                { id: 'PROMO', label: 'Promo', icon: '🏷️' },
+              ].map((b) => {
+                const isSelected = globalBadge === b.id;
+                return (
+                  <button
+                    key={b.id || 'none'}
+                    type="button"
+                    onClick={() => {
+                      setGlobalBadge(b.id);
+                      setQueue((prev) => prev.map((item) => ({ ...item, badge: b.id })));
+                    }}
+                    className={`catalog-chip ${isSelected ? 'selected' : ''}`}
+                    style={{
+                      borderColor: isSelected ? 'var(--primary)' : undefined,
+                    }}
+                  >
+                    <span>{isSelected ? '✓ ' : ''}{b.icon} {b.label}</span>
                   </button>
                 );
               })}
@@ -721,6 +758,44 @@ export default function AdminBulkUploadClient({ dict }: { dict: any }) {
                             }}
                           >
                             {isSelected ? '✓ ' : ''}{preset.shortLabel}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Commercial Badge Selector */}
+                  <div style={{ gridColumn: '1 / -1', marginTop: '2px' }}>
+                    <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, marginInlineEnd: '0.25rem' }}>
+                        🏷️ Badge:
+                      </span>
+                      {[
+                        { id: null, label: 'Aucun', icon: '🚫' },
+                        { id: 'NEW', label: 'Nouveau', icon: '✨' },
+                        { id: 'BEST_SELLER', label: 'Best-Seller', icon: '🔥' },
+                        { id: 'LIMITED_STOCK', label: 'Stock Limité', icon: '⚡' },
+                        { id: 'PROMO', label: 'Promo', icon: '🏷️' },
+                      ].map((b) => {
+                        const isSelected = item.badge === b.id;
+                        return (
+                          <button
+                            key={b.id || 'none'}
+                            type="button"
+                            disabled={item.status === 'success' || isUploading}
+                            onClick={() => updateQueueItem(item.id, { badge: b.id })}
+                            style={{
+                              fontSize: '0.72rem',
+                              padding: '0.2rem 0.55rem',
+                              borderRadius: 'var(--radius-full)',
+                              border: `1px solid ${isSelected ? 'var(--primary)' : 'var(--border-color)'}`,
+                              background: isSelected ? 'var(--primary-light)' : 'var(--bg-color)',
+                              color: isSelected ? 'var(--primary)' : 'var(--text-muted)',
+                              cursor: item.status === 'success' || isUploading ? 'default' : 'pointer',
+                              fontWeight: isSelected ? 800 : 500,
+                            }}
+                          >
+                            {isSelected ? '✓ ' : ''}{b.icon} {b.label}
                           </button>
                         );
                       })}

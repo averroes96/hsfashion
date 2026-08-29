@@ -5,6 +5,7 @@ import SmartImage from './SmartImage';
 import CategoryPillSlider from './CategoryPillSlider';
 import BulkDownloadModal from './BulkDownloadModal';
 import FavoriteButton from './FavoriteButton';
+import ProductBadge from './ProductBadge';
 import PdfLookbookModal, { PdfProgressState } from './PdfLookbookModal';
 import ProductFilterDrawer, { FilterCategoryItem } from './ProductFilterDrawer';
 import { downloadImagesSmartly, ImageToDownload, DownloadProgress } from '@/lib/zipDownloader';
@@ -830,6 +831,21 @@ export default function CatalogClientView({
                           }}
                         >
                           No Image
+                        </div>
+                      )}
+
+                      {/* Commercial Badge */}
+                      {(product as any).badge && (
+                        <div
+                          style={{
+                            position: 'absolute',
+                            top: '10px',
+                            left: isArabic ? 'auto' : '10px',
+                            right: isArabic ? '10px' : 'auto',
+                            zIndex: 5,
+                          }}
+                        >
+                          <ProductBadge badge={(product as any).badge} lang={lang} dict={dict} size="sm" />
                         </div>
                       )}
 

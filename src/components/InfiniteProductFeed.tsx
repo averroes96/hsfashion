@@ -4,6 +4,7 @@ import Link from 'next/link';
 import SmartImage from './SmartImage';
 import BulkDownloadModal from './BulkDownloadModal';
 import FavoriteButton from './FavoriteButton';
+import ProductBadge from './ProductBadge';
 import { downloadImagesSmartly, ImageToDownload, DownloadProgress } from '@/lib/zipDownloader';
 import { track } from '@vercel/analytics';
 
@@ -412,6 +413,21 @@ export default function InfiniteProductFeed({
                     }}
                   >
                     No Image
+                  </div>
+                )}
+
+                {/* Commercial Badge */}
+                {(product as any).badge && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '10px',
+                      left: isArabic ? 'auto' : '10px',
+                      right: isArabic ? '10px' : 'auto',
+                      zIndex: 5,
+                    }}
+                  >
+                    <ProductBadge badge={(product as any).badge} lang={lang} dict={dict} size="sm" />
                   </div>
                 )}
 

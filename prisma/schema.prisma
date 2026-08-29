@@ -42,6 +42,7 @@ model Product {
   details     String?
   description String?
   sizeAssortment   Json?
+  badge            String?
   isActive         Boolean        @default(true)
   views            Int            @default(0)
   aiSimilarCache   Json?

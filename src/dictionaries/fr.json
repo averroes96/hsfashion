@@ -310,5 +310,13 @@
     "noResults": "Aucun modèle ne correspond à vos filtres actuels",
     "clearAll": "Effacer les filtres",
     "activeFilters": "Filtres actifs :"
+  },
+  "badges": {
+    "title": "Badge Commercial",
+    "none": "Aucun badge",
+    "new": "Nouveau",
+    "bestSeller": "Best-Seller",
+    "limitedStock": "Stock Limité",
+    "promo": "Offre Spéciale"
   }
 }

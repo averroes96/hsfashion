@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { exportProductsPerformanceToCsv } from '@/lib/csvExporter';
+import ProductBadge from '@/components/ProductBadge';
 
 export default function AdminProductsClient({ dict }: { dict: any }) {
   const params = useParams();
@@ -359,9 +360,14 @@ export default function AdminProductsClient({ dict }: { dict: any }) {
                         )}
                       </td>
                       <td>
-                        <strong style={{ fontSize: '1rem', color: 'var(--text-main)' }}>{product.reference}</strong>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                          <strong style={{ fontSize: '1rem', color: 'var(--text-main)' }}>{product.reference}</strong>
+                          {product.badge && (
+                            <ProductBadge badge={product.badge} lang={lang} dict={dict} size="sm" />
+                          )}
+                        </div>
                         {product.details && (
-                          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', maxWidth: '240px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', maxWidth: '240px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '2px' }}>
                             {product.details}
                           </div>
                         )}
