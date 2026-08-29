@@ -380,25 +380,10 @@ export default function CatalogClientView({
               {group.products.map((product) => {
                 const primaryImage = product.images?.[0];
                 const isSelected = selectedProductIds.has(product.id);
+                const productHref = `/${lang}/product/${encodeURIComponent(product.reference)}`;
 
-                return (
-                  <div
-                    key={product.id}
-                    onClick={() => {
-                      if (isSelectionMode) {
-                        handleToggleProduct(product.id);
-                      }
-                    }}
-                    className={`product-card ${isSelected ? 'selected-card' : ''}`}
-                    style={{
-                      position: 'relative',
-                      cursor: isSelectionMode ? 'pointer' : 'default',
-                      border: isSelected ? '2px solid var(--primary)' : undefined,
-                      transform: isSelected ? 'translateY(-2px)' : undefined,
-                      boxShadow: isSelected ? '0 10px 25px -5px rgba(79, 70, 229, 0.25)' : undefined,
-                      transition: 'all 0.2s ease',
-                    }}
-                  >
+                const cardContent = (
+                  <>
                     {/* Selection Checkbox Overlay */}
                     {isSelectionMode && (
                       <div
@@ -479,24 +464,60 @@ export default function CatalogClientView({
                     {/* Body */}
                     <div className="product-card-body">
                       <h3 className="product-card-title">{product.reference}</h3>
-                      {isSelectionMode ? (
-                        <p
-                          className="product-card-subtitle"
-                          style={{ color: isSelected ? 'var(--primary)' : 'var(--text-muted)', fontWeight: isSelected ? 700 : 500 }}
-                        >
-                          {isSelected ? (isArabic ? '✓ تم التحديد' : '✓ Sélectionné') : (isArabic ? 'انقر للتحديد' : 'Cliquer pour sélectionner')}
-                        </p>
-                      ) : (
-                        <Link
-                          href={`/${lang}/product/${encodeURIComponent(product.reference)}`}
-                          className="product-card-subtitle hover-underline"
-                          style={{ textDecoration: 'none', display: 'block' }}
-                        >
-                          {product.details || dict?.catalog?.viewDetails || (isArabic ? 'عرض التفاصيل' : 'Voir détails')}
-                        </Link>
-                      )}
+                      <p
+                        className="product-card-subtitle hover-underline"
+                        style={{
+                          color: isSelectionMode && isSelected ? 'var(--primary)' : 'var(--text-muted)',
+                          fontWeight: isSelectionMode && isSelected ? 700 : 500,
+                        }}
+                      >
+                        {isSelectionMode
+                          ? isSelected
+                            ? (isArabic ? '✓ تم التحديد' : '✓ Sélectionné')
+                            : (isArabic ? 'انقر للتحديد' : 'Cliquer pour sélectionner')
+                          : (dict?.catalog?.viewDetails || (isArabic ? 'عرض التفاصيل' : 'Voir détails'))}
+                      </p>
                     </div>
-                  </div>
+                  </>
+                );
+
+                if (isSelectionMode) {
+                  return (
+                    <div
+                      key={product.id}
+                      onClick={() => handleToggleProduct(product.id)}
+                      className={`product-card ${isSelected ? 'selected-card' : ''}`}
+                      style={{
+                        position: 'relative',
+                        cursor: 'pointer',
+                        border: isSelected ? '2px solid var(--primary)' : undefined,
+                        transform: isSelected ? 'translateY(-2px)' : undefined,
+                        boxShadow: isSelected ? '0 10px 25px -5px rgba(79, 70, 229, 0.25)' : undefined,
+                        transition: 'all 0.2s ease',
+                        userSelect: 'none',
+                      }}
+                    >
+                      {cardContent}
+                    </div>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={product.id}
+                    href={productHref}
+                    className="product-card hover-lift"
+                    style={{
+                      position: 'relative',
+                      textDecoration: 'none',
+                      color: 'inherit',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {cardContent}
+                  </Link>
                 );
               })}
             </div>
