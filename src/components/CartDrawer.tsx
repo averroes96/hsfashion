@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { track } from '@vercel/analytics';
+import { queueOfflineOrder } from '@/lib/offlineOrderQueue';
 
 interface CartDrawerProps {
   lang: string;
@@ -45,6 +46,24 @@ export default function CartDrawer({ lang, dict }: CartDrawerProps) {
 
     if (items.length === 0) return;
 
+    // If currently offline, queue order locally
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      const queuedOrder = queueOfflineOrder({
+        customerPhone: customerPhone.trim(),
+        customerName: customerName.trim() || undefined,
+        customerCity: customerCity.trim() || undefined,
+        notes: notes.trim() || undefined,
+        items,
+      });
+
+      setOrderSuccess({
+        orderNumber: queuedOrder.id.replace('offline_', 'OFF-'),
+        whatsappUrl: null,
+      });
+      clearCart();
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const res = await fetch('/api/orders', {
@@ -83,7 +102,19 @@ export default function CartDrawer({ lang, dict }: CartDrawerProps) {
       } catch {}
     } catch (err: any) {
       console.error('Order submission error:', err);
-      alert(err?.message || (isArabic ? 'حدث خطأ أثناء إرسال الطلبية' : 'Échec de la commande'));
+      // Fallback: Queue offline if network error
+      const queuedOrder = queueOfflineOrder({
+        customerPhone: customerPhone.trim(),
+        customerName: customerName.trim() || undefined,
+        customerCity: customerCity.trim() || undefined,
+        notes: notes.trim() || undefined,
+        items,
+      });
+      setOrderSuccess({
+        orderNumber: queuedOrder.id.replace('offline_', 'OFF-'),
+        whatsappUrl: null,
+      });
+      clearCart();
     } finally {
       setIsSubmitting(false);
     }

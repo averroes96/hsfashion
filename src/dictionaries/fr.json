@@ -318,5 +318,29 @@
     "bestSeller": "Best-Seller",
     "limitedStock": "Stock Limité",
     "promo": "Offre Spéciale"
+  },
+  "pwa": {
+    "offlineTitle": "Mode Hors-Ligne Showroom",
+    "online": "En ligne",
+    "offline": "Hors-ligne",
+    "offlineModeNotice": "Vous êtes en mode hors-ligne. Vous pouvez consulter les modèles et préparer vos commandes sans connexion.",
+    "syncBtn": "Showroom Hors-Ligne",
+    "syncTitle": "Synchronisation Showroom Hors-Ligne",
+    "syncSubtitle": "Téléchargez l'intégralité du catalogue et des photos haute résolution pour présenter la collection sans connexion (salons, dépôts, sous-sols).",
+    "startSync": "Télécharger tout le catalogue",
+    "syncing": "Synchronisation en cours...",
+    "syncSuccess": "Catalogue hors-ligne prêt !",
+    "modelsCached": "{count} modèles enregistrés",
+    "storageUsed": "Espace utilisé : {size}",
+    "lastSync": "Dernière synchro : {date}",
+    "clearCache": "Vider le cache hors-ligne",
+    "clearSuccess": "Cache hors-ligne vidé",
+    "installTitle": "Installer l'Application Showroom",
+    "installDesc": "Installez H.S.Fashion sur votre écran d'accueil pour un accès instantané et une expérience plein écran sans barre d'adresse.",
+    "installBtn": "Installer l'App",
+    "iosInstruction": "Sur iPhone / iPad : appuyez sur le bouton Partager ⎋ puis sur « Sur l'écran d'accueil » ➕",
+    "offlineOrderQueued": "Commande enregistrée hors-ligne ! Elle sera transmise automatiquement dès votre reconnexion.",
+    "syncingOrders": "Transmission des commandes hors-ligne...",
+    "ordersSynced": "Commandes hors-ligne synchronisées avec succès !"
   }
 }

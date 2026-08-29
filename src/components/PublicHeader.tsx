@@ -3,6 +3,7 @@ import LanguageSwitcher from './LanguageSwitcher';
 import SearchBar from './SearchBar';
 import CartButton from './CartButton';
 import FavoritesButton from './FavoritesButton';
+import OfflineSyncButton from './OfflineSyncButton';
 
 interface PublicHeaderProps {
   lang: string;
@@ -48,9 +49,10 @@ export default function PublicHeader({ lang, dict }: PublicHeaderProps) {
           </span>
         </Link>
 
-        {/* Search, Favorites, Cart & Language Controls */}
+        {/* Search, Favorites, Cart, Offline Sync & Language Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
           <SearchBar dict={dict} lang={lang} />
+          <OfflineSyncButton lang={lang} dict={dict} />
           <FavoritesButton lang={lang} dict={dict} />
           <CartButton lang={lang} dict={dict} />
           <LanguageSwitcher currentLang={lang} />

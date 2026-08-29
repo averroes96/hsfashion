@@ -45,6 +45,9 @@ import { CartProvider } from "@/context/CartContext";
 import { FavoritesProvider } from "@/context/FavoritesContext";
 import CartDrawer from "@/components/CartDrawer";
 import FavoritesDrawer from "@/components/FavoritesDrawer";
+import PwaRegister from "@/components/PwaRegister";
+import NetworkStatusIndicator from "@/components/NetworkStatusIndicator";
+import PwaInstallPrompt from "@/components/PwaInstallPrompt";
 
 export default async function RootLayout({
   children,
@@ -87,6 +90,9 @@ export default async function RootLayout({
             <AppBottomNav lang={lang} dict={dict} phoneNumber={settings?.phoneNumber} />
             <CartDrawer lang={lang} dict={dict} />
             <FavoritesDrawer lang={lang} dict={dict} phoneNumber={settings?.phoneNumber} />
+            <PwaRegister />
+            <NetworkStatusIndicator dict={dict} lang={lang} />
+            <PwaInstallPrompt dict={dict} lang={lang} />
             <Analytics />
             <SpeedInsights />
           </CartProvider>
