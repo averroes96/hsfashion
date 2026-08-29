@@ -187,8 +187,8 @@ export async function generatePdfLookbook({
     onProgress?.({
       current: i + 1,
       total,
-      stepName: `Traitement des images (${i + 1}/${total})...`,
-      percentage: Math.round(((i + 1) / (total * 2)) * 100),
+      stepName: `Traitement des photos et QR codes (${i + 1}/${total})...`,
+      percentage: Math.min(70, Math.max(5, Math.round(((i + 1) / total) * 70))),
     });
 
     const [imageDataUrl, qrDataUrl] = await Promise.all([
@@ -207,8 +207,8 @@ export async function generatePdfLookbook({
   onProgress?.({
     current: total,
     total,
-    stepName: 'Compilation du document PDF...',
-    percentage: 80,
+    stepName: 'Mise en page de la couverture...',
+    percentage: 75,
   });
 
   // -------------------------------------------------------------
@@ -350,6 +350,13 @@ export async function generatePdfLookbook({
     doc.addPage('a4', 'portrait');
 
     const currentPageNum = pageIdx + 2; // +1 for cover
+
+    onProgress?.({
+      current: Math.min((pageIdx + 1) * itemsPerPage, total),
+      total,
+      stepName: `Mise en page du catalogue (Page ${pageIdx + 1}/${totalPages})...`,
+      percentage: 75 + Math.round(((pageIdx + 1) / totalPages) * 20),
+    });
 
     // Header bar on product pages
     doc.setFillColor(248, 250, 252);

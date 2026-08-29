@@ -24,6 +24,7 @@ export default function AdminNewProductClient({ dict }: { dict: any }) {
   const [files, setFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<string | null>(null);
   const [isAiAnalyzing, setIsAiAnalyzing] = useState(false);
   const [aiStatus, setAiStatus] = useState<string | null>(null);
 
@@ -169,9 +170,12 @@ export default function AdminNewProductClient({ dict }: { dict: any }) {
     }
     
     setIsSubmitting(true);
+    setSubmitStatus('Préparation des photos...');
     try {
       const uploadedImages = [];
-      for (const file of files) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        setSubmitStatus(`Envoi photo ${i + 1}/${files.length} (${Math.round(((i + 1) / files.length) * 100)}%)...`);
         const formData = new FormData();
         formData.append('file', file);
         const res = await fetch('/api/admin/upload', {
@@ -183,6 +187,7 @@ export default function AdminNewProductClient({ dict }: { dict: any }) {
         uploadedImages.push(data);
       }
 
+      setSubmitStatus('Enregistrement du produit en cours...');
       const productRes = await fetch('/api/admin/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -203,6 +208,7 @@ export default function AdminNewProductClient({ dict }: { dict: any }) {
         throw new Error(errData?.error || 'Échec de la création du produit');
       }
       
+      setSubmitStatus('Produit créé avec succès !');
       alert('Produit créé avec succès !');
       router.push(`/${lang}/admin/products`);
     } catch (error: any) {
@@ -210,6 +216,7 @@ export default function AdminNewProductClient({ dict }: { dict: any }) {
       alert(error.message || 'Erreur lors de la création du produit.');
     } finally {
       setIsSubmitting(false);
+      setSubmitStatus(null);
     }
   };
 
@@ -695,7 +702,7 @@ export default function AdminNewProductClient({ dict }: { dict: any }) {
               {isSubmitting ? (
                 <>
                   <span className="material-symbols-outlined" style={{ animation: 'spin 1s linear infinite' }}>progress_activity</span>
-                  <span>{dict.admin.uploading || 'Enregistrement...'}</span>
+                  <span>{submitStatus || dict.admin.uploading || 'Enregistrement...'}</span>
                 </>
               ) : (
                 <>

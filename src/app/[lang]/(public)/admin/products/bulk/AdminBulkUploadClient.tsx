@@ -93,7 +93,13 @@ export default function AdminBulkUploadClient({ dict }: { dict: any }) {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isBatchAiRunning, setIsBatchAiRunning] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
+  const [uploadProgress, setUploadProgress] = useState<{
+    current: number;
+    total: number;
+    percent: number;
+    currentStep?: string;
+    currentSku?: string;
+  }>({ current: 0, total: 0, percent: 0 });
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -292,6 +298,48 @@ export default function AdminBulkUploadClient({ dict }: { dict: any }) {
     setIsBatchAiRunning(false);
   };
 
+  // Helper to upload file with fine-grained XHR upload progress
+  const uploadFileWithProgress = (
+    file: File,
+    onProgress?: (percent: number) => void
+  ): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      const formData = new FormData();
+      formData.append('file', file);
+
+      if (xhr.upload && onProgress) {
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable && e.total > 0) {
+            const p = Math.round((e.loaded / e.total) * 100);
+            onProgress(p);
+          }
+        };
+      }
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            resolve(JSON.parse(xhr.responseText));
+          } catch {
+            resolve(xhr.responseText);
+          }
+        } else {
+          try {
+            const err = JSON.parse(xhr.responseText);
+            reject(new Error(err.error || `Erreur de téléversement (${xhr.status})`));
+          } catch {
+            reject(new Error(`Erreur de téléversement (${xhr.status})`));
+          }
+        }
+      };
+
+      xhr.onerror = () => reject(new Error('Erreur réseau lors de l\'envoi de la photo'));
+      xhr.open('POST', '/api/admin/upload');
+      xhr.send(formData);
+    });
+  };
+
   // Start Bulk Upload Engine
   const handleStartBulkUpload = async () => {
     const itemsToUpload = queue.filter((item) => item.status !== 'success');
@@ -308,31 +356,49 @@ export default function AdminBulkUploadClient({ dict }: { dict: any }) {
       return;
     }
 
+    const totalCount = itemsToUpload.length;
     setIsUploading(true);
-    setUploadProgress({ current: 0, total: itemsToUpload.length });
+    setUploadProgress({
+      current: 0,
+      total: totalCount,
+      percent: 2,
+      currentStep: 'Initialisation de l\'importation...',
+    });
 
     let completedCount = 0;
 
-    for (const item of itemsToUpload) {
+    for (let i = 0; i < itemsToUpload.length; i++) {
+      const item = itemsToUpload[i];
+      const itemWeight = 100 / totalCount;
+      const basePercent = (i / totalCount) * 100;
+
       updateQueueItem(item.id, { status: 'uploading', errorMessage: undefined });
+      setUploadProgress({
+        current: i + 1,
+        total: totalCount,
+        percent: Math.min(99, Math.max(2, Math.round(basePercent + itemWeight * 0.1))),
+        currentStep: `Envoi photo du modèle ${item.reference || i + 1} (${i + 1}/${totalCount})...`,
+        currentSku: item.reference,
+      });
 
       try {
-        // Step 1: Upload Image
-        const formData = new FormData();
-        formData.append('file', item.file);
-
-        const uploadRes = await fetch('/api/admin/upload', {
-          method: 'POST',
-          body: formData,
+        // Step 1: Upload image with progress
+        const uploadedImage = await uploadFileWithProgress(item.file, (filePct) => {
+          const subPct = Math.round(basePercent + (filePct / 100) * (itemWeight * 0.75));
+          setUploadProgress((prev) => ({
+            ...prev,
+            percent: Math.min(99, Math.max(2, subPct)),
+            currentStep: `Envoi photo (${item.reference || i + 1}) - ${filePct}%...`,
+          }));
         });
 
-        if (!uploadRes.ok) {
-          throw new Error('Image upload failed');
-        }
+        // Step 2: Create product in DB
+        setUploadProgress((prev) => ({
+          ...prev,
+          percent: Math.min(99, Math.round(basePercent + itemWeight * 0.9)),
+          currentStep: `Enregistrement du modèle ${item.reference}...`,
+        }));
 
-        const uploadedImage = await uploadRes.json();
-
-        // Step 2: Create Product in DB
         const productRes = await fetch('/api/admin/products', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -349,8 +415,8 @@ export default function AdminBulkUploadClient({ dict }: { dict: any }) {
         });
 
         if (!productRes.ok) {
-          const errBody = await productRes.json();
-          throw new Error(errBody?.error || 'Failed to create product');
+          const errBody = await productRes.json().catch(() => ({}));
+          throw new Error(errBody?.error || 'Échec de la création du produit');
         }
 
         updateQueueItem(item.id, { status: 'success' });
@@ -358,11 +424,18 @@ export default function AdminBulkUploadClient({ dict }: { dict: any }) {
         console.error('Error uploading product:', item.reference, err);
         updateQueueItem(item.id, {
           status: 'error',
-          errorMessage: err?.message || 'Upload failed',
+          errorMessage: err?.message || 'Échec de l\'importation',
         });
       } finally {
         completedCount++;
-        setUploadProgress({ current: completedCount, total: itemsToUpload.length });
+        const finalPercent = Math.round((completedCount / totalCount) * 100);
+        setUploadProgress({
+          current: completedCount,
+          total: totalCount,
+          percent: finalPercent,
+          currentStep: completedCount === totalCount ? 'Importation terminée !' : `Modèle ${item.reference} traité`,
+          currentSku: item.reference,
+        });
       }
     }
 
@@ -604,15 +677,40 @@ export default function AdminBulkUploadClient({ dict }: { dict: any }) {
 
           {/* Progress Bar while Uploading */}
           {isUploading && (
-            <div style={{ marginBottom: '1.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 600 }}>
-                <span>
-                  {dict?.admin?.uploadingProgress || 'Importation en cours...'} ({uploadProgress.current}/{uploadProgress.total})
+            <div
+              style={{
+                marginBottom: '1.75rem',
+                padding: '1.15rem 1.25rem',
+                background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.06) 0%, rgba(16, 185, 129, 0.06) 100%)',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--border-color)',
+                boxShadow: 'var(--shadow-sm)',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.88rem', fontWeight: 700, marginBottom: '0.45rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '1.15rem', color: 'var(--primary)', animation: 'spin 1s linear infinite' }}>
+                    progress_activity
+                  </span>
+                  <span style={{ color: 'var(--text-main)' }}>
+                    {uploadProgress.currentStep || (dict?.admin?.uploadingProgress || 'Importation en cours...')}
+                  </span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    ({uploadProgress.current}/{uploadProgress.total})
+                  </span>
+                </div>
+                <span style={{ color: 'var(--primary)', fontSize: '1.05rem', fontWeight: 900 }}>
+                  {uploadProgress.percent}%
                 </span>
-                <span>{percentComplete}%</span>
               </div>
-              <div className="bulk-progress-bar">
-                <div className="bulk-progress-fill" style={{ width: `${percentComplete}%` }} />
+              <div className="bulk-progress-bar" style={{ margin: '0.4rem 0 0 0', height: '10px' }}>
+                <div
+                  className="bulk-progress-fill"
+                  style={{
+                    width: `${Math.max(2, uploadProgress.percent)}%`,
+                    transition: 'width 0.2s ease-out',
+                  }}
+                />
               </div>
             </div>
           )}
