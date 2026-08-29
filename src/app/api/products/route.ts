@@ -45,13 +45,13 @@ export async function GET(request: Request) {
             },
           },
           images: {
-            where: { isPrimary: true },
-            take: 1,
+            orderBy: { sortOrder: 'asc' },
             select: {
               id: true,
               thumbnailUrl: true,
               mediumUrl: true,
               fullUrl: true,
+              isPrimary: true,
             },
           },
         },

@@ -2,9 +2,8 @@ import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getDictionary, Locale } from '@/lib/dictionaries';
-import SmartImage from '@/components/SmartImage';
 import PublicHeader from '@/components/PublicHeader';
-import CategoryPillSlider from '@/components/CategoryPillSlider';
+import CatalogClientView from '@/components/CatalogClientView';
 
 export default async function CatalogPage({ params }: { params: Promise<{ catalogSlug: string, lang: string }> }) {
   const { catalogSlug, lang } = await params;
@@ -19,12 +18,18 @@ export default async function CatalogPage({ params }: { params: Promise<{ catalo
         include: {
           family: true,
           images: {
-            where: { isPrimary: true },
-            take: 1
-          }
-        }
-      }
-    }
+            orderBy: { sortOrder: 'asc' },
+            select: {
+              id: true,
+              thumbnailUrl: true,
+              mediumUrl: true,
+              fullUrl: true,
+              isPrimary: true,
+            },
+          },
+        },
+      },
+    },
   });
 
   if (!catalog) notFound();
@@ -83,93 +88,17 @@ export default async function CatalogPage({ params }: { params: Promise<{ catalo
         </section>
 
         <div className="container" style={{ paddingBottom: 'var(--spacing-xl)' }}>
-          {sortedFamilies.length > 1 && (
-            <CategoryPillSlider
-              families={sortedFamilies.map(g => g.family)}
-              catalogSlug={catalog.slug}
-              lang={lang}
-              allLabel={dict?.catalog?.all || (lang === 'ar' ? 'الكل' : 'Tous')}
-            />
-          )}
-
-          {sortedFamilies.length === 0 && (
-            <div className="glass-card fade-in-up" style={{ padding: '3rem', textAlign: 'center' }}>
-              <p style={{ color: 'var(--text-muted)' }}>{dict.catalog.noProducts}</p>
-            </div>
-          )}
-          
-          {sortedFamilies.map((group, index) => (
-            <section id={`family-${group.family.id}`} key={group.family.id} style={{ marginBottom: '3rem' }} className={`fade-in-up delay-${index % 3 + 1}`}>
-              {/* Sticky Header */}
-              <div style={{ 
-                position: 'sticky', 
-                top: '60px', 
-                zIndex: 90, 
-                background: 'rgba(248, 250, 252, 0.9)', 
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
-                padding: '0.75rem 1.25rem',
-                borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border-color)',
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between',
-                marginBottom: '1rem',
-                boxShadow: 'var(--shadow-sm)',
-                gap: '0.5rem'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <h2 style={{ fontSize: 'clamp(1.1rem, 3vw, 1.4rem)', margin: 0, fontWeight: 800 }}>{group.family.name}</h2>
-                  <span className="badge" style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}>
-                    {group.products.length}
-                  </span>
-                </div>
-                <Link href={`/${lang}/${catalog.slug}/${group.family.slug}`} className="btn btn-outline" style={{ padding: '0.4rem 0.85rem', fontSize: '0.8rem', minHeight: '36px' }}>
-                  {dict.catalog.viewAll} →
-                </Link>
-              </div>
-              
-              {/* Responsive Product Grid */}
-              <div className="product-card-grid">
-                {group.products.slice(0, 8).map((product: any) => {
-                  const primaryImage = product.images[0];
-                  return (
-                    <Link key={product.id} href={`/${lang}/product/${encodeURIComponent(product.reference)}`} className="product-card">
-                      <div className="product-card-media">
-                        {primaryImage ? (
-                          <SmartImage 
-                            src={primaryImage.mediumUrl || primaryImage.thumbnailUrl} 
-                            alt={product.reference} 
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            wrapperStyle={{ width: '100%', height: '100%' }}
-                          />
-                        ) : (
-                          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-                            No Image
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="product-card-body">
-                        <h3 className="product-card-title">{product.reference}</h3>
-                        <p className="product-card-subtitle">
-                          {product.details || dict?.catalog?.viewDetails || dict?.product?.viewDetails || (lang === 'ar' ? 'عرض التفاصيل' : 'Voir détails')}
-                        </p>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-
-              {group.products.length > 8 && (
-                <div style={{ textAlign: 'center', marginTop: '1.25rem' }}>
-                  <Link href={`/${lang}/${catalog.slug}/${group.family.slug}`} className="btn btn-outline" style={{ background: 'var(--surface)' }}>
-                    {dict.catalog.viewAll} ({group.products.length} {dict.home.products}) →
-                  </Link>
-                </div>
-              )}
-            </section>
-          ))}
+          <CatalogClientView
+            catalog={{
+              id: catalog.id,
+              name: catalog.name,
+              slug: catalog.slug,
+              description: catalog.description,
+            }}
+            sortedFamilies={sortedFamilies}
+            lang={lang}
+            dict={dict}
+          />
         </div>
       </main>
     </>

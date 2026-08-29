@@ -14,7 +14,14 @@
     "all": "Tous",
     "viewAll": "Voir tout",
     "viewDetails": "Voir détails",
-    "noProducts": "Aucun produit dans ce catalogue pour le moment."
+    "noProducts": "Aucun produit dans ce catalogue pour le moment.",
+    "downloadAll": "Télécharger tout (ZIP)",
+    "downloadSelection": "Télécharger la sélection (ZIP)",
+    "selectModels": "Sélectionner",
+    "exitSelection": "Quitter sélection",
+    "selectAll": "Tout sélectionner",
+    "deselectAll": "Désélectionner",
+    "downloadFamily": "Télécharger (ZIP)"
   },
   "family": {
     "in": "dans",

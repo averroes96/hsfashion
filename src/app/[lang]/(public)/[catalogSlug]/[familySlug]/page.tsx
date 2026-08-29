@@ -56,11 +56,17 @@ export default async function FamilyPage({
       include: {
         family: true,
         images: {
-          where: { isPrimary: true },
-          take: 1
-        }
-      }
-    })
+          orderBy: { sortOrder: 'asc' },
+          select: {
+            id: true,
+            thumbnailUrl: true,
+            mediumUrl: true,
+            fullUrl: true,
+            isPrimary: true,
+          },
+        },
+      },
+    }),
   ]);
 
   const displayFamilyName = lang === 'ar' && family.arabicName ? family.arabicName : family.name;

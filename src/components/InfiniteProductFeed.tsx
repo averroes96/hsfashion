@@ -1,10 +1,34 @@
 'use client';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import SmartImage from './SmartImage';
+import BulkDownloadModal from './BulkDownloadModal';
+import { downloadImagesSmartly, ImageToDownload, DownloadProgress } from '@/lib/zipDownloader';
+import { track } from '@vercel/analytics';
+
+interface ProductImage {
+  id: string;
+  thumbnailUrl: string;
+  mediumUrl: string;
+  fullUrl?: string;
+  isPrimary?: boolean;
+}
+
+interface Product {
+  id: string;
+  reference: string;
+  details?: string | null;
+  family?: {
+    id: string;
+    name: string;
+    arabicName?: string | null;
+    slug: string;
+  };
+  images: ProductImage[];
+}
 
 interface InfiniteProductFeedProps {
-  initialProducts: any[];
+  initialProducts: Product[];
   catalogSlug: string;
   familySlug?: string;
   lang: string;
@@ -22,22 +46,32 @@ export default function InfiniteProductFeed({
   dict,
   limit = 12,
 }: InfiniteProductFeedProps) {
-  const [products, setProducts] = useState<any[]>(initialProducts);
+  const [products, setProducts] = useState<Product[]>(initialProducts);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialProducts.length < totalProducts);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
+  // Selection & Bulk Download State
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set());
+  const [downloadProgress, setDownloadProgress] = useState<DownloadProgress | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const isFetchingRef = useRef(false);
 
-  // Sync if initialProducts changes (e.g. navigation between categories)
+  const isArabic = lang === 'ar';
+  const pg = dict?.pagination || {};
+
+  // Sync if initialProducts changes
   useEffect(() => {
     setProducts(initialProducts);
     setPage(1);
     setHasMore(initialProducts.length < totalProducts);
     setIsLoadingMore(false);
     setFetchError(null);
+    setSelectedProductIds(new Set());
   }, [initialProducts, totalProducts]);
 
   const loadMoreProducts = useCallback(async () => {
@@ -61,12 +95,11 @@ export default function InfiniteProductFeed({
       if (!res.ok) throw new Error('Failed to fetch next products');
 
       const data = await res.json();
-      const newItems = data.products || [];
+      const newItems: Product[] = data.products || [];
 
       setProducts((prev) => {
-        // Prevent accidental duplicates
         const existingIds = new Set(prev.map((p) => p.id));
-        const filteredNew = newItems.filter((p: any) => !existingIds.has(p.id));
+        const filteredNew = newItems.filter((p) => !existingIds.has(p.id));
         return [...prev, ...filteredNew];
       });
 
@@ -93,7 +126,7 @@ export default function InfiniteProductFeed({
         }
       },
       {
-        rootMargin: '300px', // Fetch early before user reaches the very bottom
+        rootMargin: '300px',
         threshold: 0.1,
       }
     );
@@ -111,21 +144,253 @@ export default function InfiniteProductFeed({
     };
   }, [hasMore, loadMoreProducts]);
 
-  const pg = dict?.pagination || {};
+  // Total loaded photos
+  const totalLoadedImagesCount = useMemo(() => {
+    return products.reduce((acc, p) => acc + (p.images?.length || 0), 0);
+  }, [products]);
+
+  // Selected products & images
+  const selectedProducts = useMemo(() => {
+    return products.filter((p) => selectedProductIds.has(p.id));
+  }, [products, selectedProductIds]);
+
+  const selectedImagesCount = useMemo(() => {
+    return selectedProducts.reduce((acc, p) => acc + (p.images?.length || 0), 0);
+  }, [selectedProducts]);
+
+  const handleToggleProduct = (productId: string) => {
+    setSelectedProductIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(productId)) next.delete(productId);
+      else next.add(productId);
+      return next;
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (selectedProductIds.size === products.length) {
+      setSelectedProductIds(new Set());
+    } else {
+      setSelectedProductIds(new Set(products.map((p) => p.id)));
+    }
+  };
+
+  const startZipDownload = useCallback(
+    async (productsToDownload: Product[], zipName: string) => {
+      const images: ImageToDownload[] = [];
+
+      for (const p of productsToDownload) {
+        const familyName = isArabic && p.family?.arabicName ? p.family.arabicName : p.family?.name;
+        if (p.images && p.images.length > 0) {
+          p.images.forEach((img, idx) => {
+            const url = img.fullUrl || img.mediumUrl || img.thumbnailUrl;
+            if (url) {
+              images.push({
+                url,
+                reference: p.reference,
+                family: familyName,
+                index: idx + 1,
+              });
+            }
+          });
+        }
+      }
+
+      if (images.length === 0) {
+        alert(isArabic ? 'لا توجد صور متاحة للتنزيل.' : 'Aucune image disponible à télécharger.');
+        return;
+      }
+
+      setIsModalOpen(true);
+      setDownloadProgress({
+        current: 0,
+        total: images.length,
+        percentage: 0,
+        status: 'fetching',
+      });
+
+      try {
+        track('bulk_download_started', {
+          catalog: catalogSlug,
+          family: familySlug,
+          productsCount: productsToDownload.length,
+          imagesCount: images.length,
+          lang,
+        });
+
+        await downloadImagesSmartly({
+          images,
+          title: zipName,
+          onProgress: (progress) => {
+            setDownloadProgress(progress);
+          },
+        });
+      } catch (err: any) {
+        console.error('Error creating ZIP:', err);
+        setDownloadProgress({
+          current: 0,
+          total: images.length,
+          percentage: 0,
+          status: 'error',
+          error: err.message,
+        });
+      }
+    },
+    [catalogSlug, familySlug, isArabic, lang]
+  );
+
+  const handleDownloadAll = () => {
+    startZipDownload(
+      products,
+      `${catalogSlug}_${familySlug || 'collection'}_Photos`
+    );
+  };
+
+  const handleDownloadSelected = () => {
+    if (selectedProducts.length === 0) return;
+    startZipDownload(
+      selectedProducts,
+      `${catalogSlug}_Selection_${selectedProducts.length}_modeles`
+    );
+  };
 
   return (
     <div>
+      <BulkDownloadModal
+        isOpen={isModalOpen}
+        progress={downloadProgress}
+        onClose={() => setIsModalOpen(false)}
+        lang={lang}
+      />
+
+      {/* Action Toolbar */}
+      <div
+        className="glass-card fade-in"
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '0.75rem',
+          padding: '0.85rem 1.25rem',
+          marginBottom: '1.5rem',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid var(--border-color)',
+          background: 'var(--surface)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--text-muted)', fontSize: '0.88rem', fontWeight: 600 }}>
+          <span className="material-symbols-outlined" style={{ color: 'var(--primary)', fontSize: '1.35rem' }}>
+            photo_library
+          </span>
+          <span>
+            {totalProducts} {dict?.home?.products || 'produits'} ({totalLoadedImagesCount} {isArabic ? 'صورة' : 'photos'})
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+          {/* Download All Button */}
+          <button
+            type="button"
+            onClick={handleDownloadAll}
+            className="btn btn-outline hover-lift"
+            title={isArabic ? 'تنزيل جميع صور هذه الفئة دفعة واحدة' : 'Télécharger toutes les photos de cette catégorie'}
+            style={{
+              padding: '0.45rem 1rem',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              gap: '0.4rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1.15rem', color: 'var(--primary)' }}>
+              cloud_download
+            </span>
+            <span>{isArabic ? 'تحميل كل الصور (ZIP)' : 'Télécharger tout (ZIP)'}</span>
+          </button>
+
+          {/* Toggle Selection Mode Button */}
+          <button
+            type="button"
+            onClick={() => {
+              setIsSelectionMode((prev) => !prev);
+              if (isSelectionMode) setSelectedProductIds(new Set());
+            }}
+            className={`btn ${isSelectionMode ? 'btn-primary' : 'btn-outline'} hover-lift`}
+            style={{
+              padding: '0.45rem 1rem',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              gap: '0.4rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }}>
+              {isSelectionMode ? 'check_box' : 'checklist'}
+            </span>
+            <span>{isSelectionMode ? (isArabic ? 'إلغاء التحديد' : 'Quitter sélection') : (isArabic ? 'تحديد موديلات' : 'Sélectionner')}</span>
+          </button>
+        </div>
+      </div>
+
       {/* Product Grid */}
       <div className="product-card-grid">
-        {products.map((product: any, index: number) => {
+        {products.map((product, index) => {
           const primaryImage = product.images?.[0];
+          const isSelected = selectedProductIds.has(product.id);
+
           return (
-            <Link
+            <div
               key={product.id}
-              href={`/${lang}/product/${encodeURIComponent(product.reference)}`}
-              className="product-card fade-in-up"
-              style={{ animationDelay: `${(index % 4) * 0.05}s` }}
+              onClick={() => {
+                if (isSelectionMode) {
+                  handleToggleProduct(product.id);
+                }
+              }}
+              className={`product-card fade-in-up ${isSelected ? 'selected-card' : ''}`}
+              style={{
+                animationDelay: `${(index % 4) * 0.05}s`,
+                position: 'relative',
+                cursor: isSelectionMode ? 'pointer' : 'default',
+                border: isSelected ? '2px solid var(--primary)' : undefined,
+                transform: isSelected ? 'translateY(-2px)' : undefined,
+                boxShadow: isSelected ? '0 10px 25px -5px rgba(79, 70, 229, 0.25)' : undefined,
+                transition: 'all 0.2s ease',
+              }}
             >
+              {/* Selection Checkbox Overlay */}
+              {isSelectionMode && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '10px',
+                    right: isArabic ? 'auto' : '10px',
+                    left: isArabic ? '10px' : 'auto',
+                    zIndex: 10,
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '50%',
+                    background: isSelected ? 'var(--primary)' : 'rgba(255, 255, 255, 0.9)',
+                    border: isSelected ? '2px solid white' : '2px solid #cbd5e1',
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {isSelected && (
+                    <span className="material-symbols-outlined" style={{ fontSize: '1.2rem', fontWeight: 900 }}>
+                      check
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* Media Thumbnail */}
               <div className="product-card-media">
                 {primaryImage ? (
                   <SmartImage
@@ -149,15 +414,50 @@ export default function InfiniteProductFeed({
                     No Image
                   </div>
                 )}
+
+                {/* Photo Count Badge */}
+                {product.images && product.images.length > 1 && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      bottom: '8px',
+                      right: isArabic ? 'auto' : '8px',
+                      left: isArabic ? '8px' : 'auto',
+                      background: 'rgba(15, 23, 42, 0.75)',
+                      color: 'white',
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      padding: '2px 6px',
+                      borderRadius: 'var(--radius-sm)',
+                      backdropFilter: 'blur(4px)',
+                    }}
+                  >
+                    📷 {product.images.length}
+                  </span>
+                )}
               </div>
 
+              {/* Body */}
               <div className="product-card-body">
                 <h3 className="product-card-title">{product.reference}</h3>
-                <p className="product-card-subtitle">
-                  {product.details || dict?.product?.viewDetails || dict?.catalog?.viewDetails || (lang === 'ar' ? 'عرض التفاصيل' : 'Voir détails')}
-                </p>
+                {isSelectionMode ? (
+                  <p
+                    className="product-card-subtitle"
+                    style={{ color: isSelected ? 'var(--primary)' : 'var(--text-muted)', fontWeight: isSelected ? 700 : 500 }}
+                  >
+                    {isSelected ? (isArabic ? '✓ تم التحديد' : '✓ Sélectionné') : (isArabic ? 'انقر للتحديد' : 'Cliquer pour sélectionner')}
+                  </p>
+                ) : (
+                  <Link
+                    href={`/${lang}/product/${encodeURIComponent(product.reference)}`}
+                    className="product-card-subtitle hover-underline"
+                    style={{ textDecoration: 'none', display: 'block' }}
+                  >
+                    {product.details || dict?.product?.viewDetails || dict?.catalog?.viewDetails || (isArabic ? 'عرض التفاصيل' : 'Voir détails')}
+                  </Link>
+                )}
               </div>
-            </Link>
+            </div>
           );
         })}
 
@@ -271,6 +571,120 @@ export default function InfiniteProductFeed({
           >
             {pg.endOfCollection || '✓ Vous avez vu tous les modèles de cette catégorie'}
           </span>
+        </div>
+      )}
+
+      {/* Floating Bottom Selection Tray (Appears during Selection Mode) */}
+      {isSelectionMode && (
+        <div
+          className="fade-in-up"
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 1000,
+            width: 'calc(100% - 2rem)',
+            maxWidth: '680px',
+            background: 'var(--surface)',
+            borderRadius: 'var(--radius-full)',
+            padding: '0.65rem 1.25rem',
+            boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.3)',
+            border: '2px solid var(--primary)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '0.75rem',
+            flexWrap: 'wrap',
+            backdropFilter: 'blur(16px)',
+          }}
+        >
+          {/* Status & Counter */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span
+              style={{
+                background: 'var(--primary)',
+                color: 'white',
+                borderRadius: '999px',
+                padding: '2px 8px',
+                fontSize: '0.8rem',
+                fontWeight: 900,
+              }}
+            >
+              {selectedProducts.length}
+            </span>
+            <span style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-main)' }}>
+              {isArabic
+                ? `موديلات محددة (${selectedImagesCount} صورة)`
+                : `modèles (${selectedImagesCount} photos)`}
+            </span>
+          </div>
+
+          {/* Action Buttons */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button
+              type="button"
+              onClick={handleSelectAll}
+              className="btn btn-outline"
+              style={{
+                padding: '0.35rem 0.75rem',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                borderRadius: 'var(--radius-full)',
+              }}
+            >
+              {selectedProductIds.size === products.length
+                ? (isArabic ? 'إلغاء الكل' : 'Désélectionner')
+                : (isArabic ? 'تحديد الكل' : 'Tout sélectionner')}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleDownloadSelected}
+              disabled={selectedProducts.length === 0}
+              className="btn btn-primary hover-lift"
+              style={{
+                padding: '0.45rem 1.15rem',
+                fontSize: '0.85rem',
+                fontWeight: 800,
+                borderRadius: 'var(--radius-full)',
+                opacity: selectedProducts.length === 0 ? 0.5 : 1,
+                cursor: selectedProducts.length === 0 ? 'not-allowed' : 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }}>
+                download
+              </span>
+              <span>{isArabic ? 'تحميل (ZIP)' : 'Télécharger (ZIP)'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsSelectionMode(false);
+                setSelectedProductIds(new Set());
+              }}
+              style={{
+                background: 'rgba(100, 116, 139, 0.15)',
+                border: 'none',
+                borderRadius: '50%',
+                width: '32px',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                color: 'var(--text-muted)',
+                fontSize: '1rem',
+              }}
+              title={isArabic ? 'إغلاق وضع التحديد' : 'Fermer le mode sélection'}
+            >
+              ✕
+            </button>
+          </div>
         </div>
       )}
     </div>
