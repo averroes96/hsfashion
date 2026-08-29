@@ -605,6 +605,7 @@ export default function AdminNewProductClient({ dict }: { dict: any }) {
             dict={dict}
             lang={lang}
             productContext={{
+              hasImage: files.length > 0,
               getImageBase64: async () => {
                 if (files.length > 0) {
                   return await fileToBase64(files[0]);

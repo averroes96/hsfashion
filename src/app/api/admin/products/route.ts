@@ -33,7 +33,9 @@ export async function POST(request: Request) {
         reference,
         details,
         description,
-        familyId,
+        family: {
+          connect: { id: familyId }
+        },
         sizeAssortment: sizeAssortment || null,
         catalogs: catalogIds?.length ? {
           connect: catalogIds.map((id: string) => ({ id }))

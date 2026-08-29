@@ -7,6 +7,7 @@ export interface SizeAssortmentItem {
 }
 
 export interface AssortmentProductContext {
+  hasImage?: boolean;
   getImageBase64?: () => Promise<string | null> | (string | null);
   imageUrl?: string | null;
   categoryName?: string;
@@ -213,37 +214,51 @@ export default function AdminAssortmentConfig({
         </label>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-          {/* Dedicated AI Assortment Detect Button */}
-          <button
-            type="button"
-            onClick={handleAiAutoDetect}
-            disabled={isAiDetecting}
-            className="btn btn-outline hover-lift"
-            style={{
-              padding: '0.35rem 0.85rem',
-              fontSize: '0.78rem',
-              fontWeight: 800,
-              borderRadius: 'var(--radius-full)',
-              background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(99, 102, 241, 0.15) 100%)',
-              borderColor: 'var(--primary)',
-              color: 'var(--primary)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-            }}
-            title="Analyser la photo et les infos du produit avec Gemini pour détecter automatiquement l'assortiment adapté"
-          >
-            <span
-              className="material-symbols-outlined"
-              style={{
-                fontSize: '1rem',
-                animation: isAiDetecting ? 'spin 1s linear infinite' : 'none',
-              }}
-            >
-              {isAiDetecting ? 'progress_activity' : 'magic_button'}
-            </span>
-            <span>{isAiDetecting ? 'Détection IA...' : '✨ IA Auto-Assortiment'}</span>
-          </button>
+          {/* Dedicated AI Assortment Detect Button (Enabled only when image is uploaded) */}
+          {(() => {
+            const hasImage = Boolean(productContext?.hasImage || productContext?.imageUrl);
+            return (
+              <button
+                type="button"
+                onClick={handleAiAutoDetect}
+                disabled={isAiDetecting || !hasImage}
+                className={`btn btn-outline ${hasImage ? 'hover-lift' : ''}`}
+                style={{
+                  padding: '0.35rem 0.85rem',
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  borderRadius: 'var(--radius-full)',
+                  background: hasImage
+                    ? 'linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(99, 102, 241, 0.15) 100%)'
+                    : '#f1f5f9',
+                  borderColor: hasImage ? 'var(--primary)' : 'var(--border-color)',
+                  color: hasImage ? 'var(--primary)' : 'var(--text-muted)',
+                  opacity: hasImage ? 1 : 0.6,
+                  cursor: hasImage ? 'pointer' : 'not-allowed',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  transition: 'all 0.2s ease',
+                }}
+                title={
+                  hasImage
+                    ? "Analyser la photo et les infos du produit avec Gemini pour détecter automatiquement l'assortiment adapté"
+                    : "Veuillez d'abord ajouter au moins une photo du produit pour activer la détection IA"
+                }
+              >
+                <span
+                  className="material-symbols-outlined"
+                  style={{
+                    fontSize: '1rem',
+                    animation: isAiDetecting ? 'spin 1s linear infinite' : 'none',
+                  }}
+                >
+                  {isAiDetecting ? 'progress_activity' : 'magic_button'}
+                </span>
+                <span>{isAiDetecting ? 'Détection IA...' : '✨ IA Auto-Assortiment'}</span>
+              </button>
+            );
+          })()}
 
           {isEnabled && (
             <span

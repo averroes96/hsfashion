@@ -40,7 +40,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         reference: body.reference,
         details: body.details,
         description: body.description,
-        familyId: body.familyId,
+        family: body.familyId ? {
+          connect: { id: body.familyId }
+        } : undefined,
         sizeAssortment: body.sizeAssortment !== undefined ? body.sizeAssortment : undefined,
         isActive: body.isActive !== undefined ? body.isActive : undefined,
         catalogs: body.catalogIds ? {
