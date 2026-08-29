@@ -333,14 +333,6 @@ export default function AdminEditProductClient({ dict, productId }: { dict: any,
             onChange={setSizeAssortment}
             dict={dict}
             lang={lang}
-            productContext={{
-              hasImage: existingImages.length > 0,
-              imageUrl: existingImages[0]?.mediumUrl || existingImages[0]?.thumbnailUrl || null,
-              categoryName: (families as any[]).find((f: any) => f.id === familyId)?.name || '',
-              reference,
-              details,
-              description,
-            }}
           />
 
           {/* Actions Footer */}

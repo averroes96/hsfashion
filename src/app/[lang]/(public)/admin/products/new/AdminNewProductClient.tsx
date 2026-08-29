@@ -604,19 +604,6 @@ export default function AdminNewProductClient({ dict }: { dict: any }) {
             onChange={setSizeAssortment}
             dict={dict}
             lang={lang}
-            productContext={{
-              hasImage: files.length > 0,
-              getImageBase64: async () => {
-                if (files.length > 0) {
-                  return await fileToBase64(files[0]);
-                }
-                return null;
-              },
-              categoryName: (families as any[]).find((f: any) => f.id === familyId)?.name || '',
-              reference,
-              details,
-              description,
-            }}
           />
 
           {/* 7. Action Buttons */}

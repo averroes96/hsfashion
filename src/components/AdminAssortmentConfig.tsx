@@ -6,22 +6,11 @@ export interface SizeAssortmentItem {
   ratio: number;
 }
 
-export interface AssortmentProductContext {
-  hasImage?: boolean;
-  getImageBase64?: () => Promise<string | null> | (string | null);
-  imageUrl?: string | null;
-  categoryName?: string;
-  reference?: string;
-  details?: string;
-  description?: string;
-}
-
 interface AdminAssortmentConfigProps {
   value: SizeAssortmentItem[] | null;
   onChange: (value: SizeAssortmentItem[] | null) => void;
   dict?: any;
   lang?: string;
-  productContext?: AssortmentProductContext;
 }
 
 const PRESETS = [
@@ -75,14 +64,11 @@ export default function AdminAssortmentConfig({
   onChange,
   dict,
   lang = 'fr',
-  productContext,
 }: AdminAssortmentConfigProps) {
   const [isEnabled, setIsEnabled] = useState(Boolean(value && value.length > 0));
   const [items, setItems] = useState<SizeAssortmentItem[]>(
     value && value.length > 0 ? value : PRESETS[0].items
   );
-  const [isAiDetecting, setIsAiDetecting] = useState(false);
-  const [aiMessage, setAiMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (value && value.length > 0) {
@@ -106,7 +92,6 @@ export default function AdminAssortmentConfig({
     setIsEnabled(true);
     setItems(presetItems);
     onChange(presetItems);
-    setAiMessage(null);
   };
 
   const handleItemChange = (index: number, field: 'size' | 'ratio', val: string | number) => {
@@ -138,55 +123,6 @@ export default function AdminAssortmentConfig({
     }
   };
 
-  // Dedicated AI Auto-Detect Assortment
-  const handleAiAutoDetect = async () => {
-    setIsAiDetecting(true);
-    setAiMessage(null);
-
-    try {
-      let imageBase64: string | null = null;
-      if (productContext?.getImageBase64) {
-        imageBase64 = await productContext.getImageBase64();
-      }
-
-      const res = await fetch('/api/admin/ai/auto-assortment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          imageBase64,
-          imageUrl: productContext?.imageUrl || null,
-          categoryName: productContext?.categoryName || '',
-          reference: productContext?.reference || '',
-          details: productContext?.details || '',
-          description: productContext?.description || '',
-          lang,
-        }),
-      });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData?.error || 'Failed to detect assortment with AI');
-      }
-
-      const data = await res.json();
-      if (data.sizeAssortment && Array.isArray(data.sizeAssortment) && data.sizeAssortment.length > 0) {
-        setIsEnabled(true);
-        setItems(data.sizeAssortment);
-        onChange(data.sizeAssortment);
-
-        const totalDetected = data.sizeAssortment.reduce((s: number, it: any) => s + (Number(it.ratio) || 0), 0);
-        setAiMessage(
-          `✨ ${data.detectedProductType || 'Modèle détecté'} : Assortiment ${totalDetected} paires appliqué (${data.reasoning || ''})`
-        );
-      }
-    } catch (err: any) {
-      console.error(err);
-      alert(err.message || 'Erreur lors de la détection IA de l\'assortiment.');
-    } finally {
-      setIsAiDetecting(false);
-    }
-  };
-
   const totalPairs = isEnabled ? items.reduce((sum, it) => sum + (Number(it.ratio) || 0), 0) : 0;
 
   return (
@@ -213,98 +149,29 @@ export default function AdminAssortmentConfig({
           </span>
         </label>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-          {/* Dedicated AI Assortment Detect Button (Enabled only when image is uploaded) */}
-          {(() => {
-            const hasImage = Boolean(productContext?.hasImage || productContext?.imageUrl);
-            return (
-              <button
-                type="button"
-                onClick={handleAiAutoDetect}
-                disabled={isAiDetecting || !hasImage}
-                className={`btn btn-outline ${hasImage ? 'hover-lift' : ''}`}
-                style={{
-                  padding: '0.35rem 0.85rem',
-                  fontSize: '0.78rem',
-                  fontWeight: 800,
-                  borderRadius: 'var(--radius-full)',
-                  background: hasImage
-                    ? 'linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(99, 102, 241, 0.15) 100%)'
-                    : '#f1f5f9',
-                  borderColor: hasImage ? 'var(--primary)' : 'var(--border-color)',
-                  color: hasImage ? 'var(--primary)' : 'var(--text-muted)',
-                  opacity: hasImage ? 1 : 0.6,
-                  cursor: hasImage ? 'pointer' : 'not-allowed',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.35rem',
-                  transition: 'all 0.2s ease',
-                }}
-                title={
-                  hasImage
-                    ? "Analyser la photo et les infos du produit avec Gemini pour détecter automatiquement l'assortiment adapté"
-                    : "Veuillez d'abord ajouter au moins une photo du produit pour activer la détection IA"
-                }
-              >
-                <span
-                  className="material-symbols-outlined"
-                  style={{
-                    fontSize: '1rem',
-                    animation: isAiDetecting ? 'spin 1s linear infinite' : 'none',
-                  }}
-                >
-                  {isAiDetecting ? 'progress_activity' : 'magic_button'}
-                </span>
-                <span>{isAiDetecting ? 'Détection IA...' : '✨ IA Auto-Assortiment'}</span>
-              </button>
-            );
-          })()}
-
-          {isEnabled && (
-            <span
-              style={{
-                fontSize: '0.85rem',
-                fontWeight: 800,
-                color: 'var(--primary)',
-                background: 'var(--primary-light)',
-                padding: '4px 10px',
-                borderRadius: 'var(--radius-full)',
-              }}
-            >
-              Total : {totalPairs} paires / carton
-            </span>
-          )}
-        </div>
+        {isEnabled && (
+          <span
+            style={{
+              fontSize: '0.85rem',
+              fontWeight: 800,
+              color: 'var(--primary)',
+              background: 'var(--primary-light)',
+              padding: '4px 10px',
+              borderRadius: 'var(--radius-full)',
+            }}
+          >
+            Total : {totalPairs} paires / carton
+          </span>
+        )}
       </div>
 
       <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: '0.35rem 0 0.75rem 0' }}>
         Configurez la répartition exacte des pointures pour la vente en gros par carton.
       </p>
 
-      {/* AI Success Message Banner */}
-      {aiMessage && (
-        <div
-          style={{
-            background: 'rgba(79, 70, 229, 0.08)',
-            border: '1px solid rgba(79, 70, 229, 0.25)',
-            borderRadius: 'var(--radius-sm)',
-            padding: '0.5rem 0.75rem',
-            fontSize: '0.8rem',
-            color: 'var(--primary)',
-            fontWeight: 600,
-            marginBottom: '0.85rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-          }}
-        >
-          <span>{aiMessage}</span>
-        </div>
-      )}
-
       {isEnabled && (
         <div style={{ marginTop: '0.5rem' }}>
-          {/* Auto Setup Presets Section */}
+          {/* Presets Shortcuts */}
           <div style={{ marginBottom: '1rem' }}>
             <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '0.4rem' }}>
               ⚡ Raccourcis de distribution standard (Presets) :
@@ -346,7 +213,7 @@ export default function AdminAssortmentConfig({
             </div>
           </div>
 
-          {/* Size & Ratio Rows Table */}
+          {/* Size & Ratio Rows Grid */}
           <div
             style={{
               display: 'grid',
