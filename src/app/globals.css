@@ -576,6 +576,36 @@ textarea.form-control {
   }
 }
 
+/* Floating Selection Bar */
+.floating-selection-bar {
+  position: fixed;
+  bottom: 84px; /* Sits cleanly above mobile bottom nav */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1050;
+  width: calc(100% - 1.25rem);
+  max-width: 580px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 0.85rem;
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.35);
+  border: 2px solid var(--primary);
+  display: flex;
+  align-items: center;
+  justifyContent: space-between;
+  gap: 0.5rem;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+@media (min-width: 769px) {
+  .floating-selection-bar {
+    bottom: 24px;
+    border-radius: var(--radius-full);
+    padding: 0.65rem 1.25rem;
+  }
+}
+
 /* Center AI Floating Action Button with Breathing Pulse Glow */
 @keyframes aiPulseGlow {
   0% {

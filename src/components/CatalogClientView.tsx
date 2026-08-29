@@ -237,7 +237,7 @@ export default function CatalogClientView({
             type="button"
             onClick={handleDownloadAll}
             className="btn btn-outline hover-lift"
-            title={isArabic ? 'تنزيل جميع صور الكتالوج دفعة واحدة' : 'Télécharger toutes les photos du catalogue'}
+            title={isArabic ? 'تنزيل جميع صور الكتالوج' : 'Télécharger toutes les photos du catalogue'}
             style={{
               padding: '0.45rem 1rem',
               fontSize: '0.85rem',
@@ -250,7 +250,7 @@ export default function CatalogClientView({
             <span className="material-symbols-outlined" style={{ fontSize: '1.15rem', color: 'var(--primary)' }}>
               cloud_download
             </span>
-            <span>{isArabic ? 'تحميل كل الصور (ZIP)' : 'Télécharger tout (ZIP)'}</span>
+            <span>{dict?.catalog?.downloadAll || (isArabic ? 'تحميل كل الصور' : 'Télécharger les photos')}</span>
           </button>
 
           {/* Toggle Selection Mode Button */}
@@ -357,7 +357,7 @@ export default function CatalogClientView({
                   <span className="material-symbols-outlined" style={{ fontSize: '1.05rem', color: 'var(--primary)' }}>
                     download
                   </span>
-                  <span>{isArabic ? 'تحميل الفئة (ZIP)' : 'Télécharger (ZIP)'}</span>
+                  <span>{dict?.catalog?.downloadFamily || (isArabic ? 'تحميل الصور' : 'Télécharger')}</span>
                 </button>
 
                 <Link
@@ -506,31 +506,9 @@ export default function CatalogClientView({
 
       {/* Floating Bottom Selection Tray (Appears during Selection Mode) */}
       {isSelectionMode && (
-        <div
-          className="fade-in-up"
-          style={{
-            position: 'fixed',
-            bottom: '20px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 1000,
-            width: 'calc(100% - 2rem)',
-            maxWidth: '680px',
-            background: 'var(--surface)',
-            borderRadius: 'var(--radius-full)',
-            padding: '0.65rem 1.25rem',
-            boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.3)',
-            border: '2px solid var(--primary)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '0.75rem',
-            flexWrap: 'wrap',
-            backdropFilter: 'blur(16px)',
-          }}
-        >
+        <div className="floating-selection-bar fade-in-up">
           {/* Status & Counter */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
             <span
               style={{
                 background: 'var(--primary)',
@@ -543,29 +521,29 @@ export default function CatalogClientView({
             >
               {selectedProducts.length}
             </span>
-            <span style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-main)' }}>
+            <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-main)' }}>
               {isArabic
-                ? `موديلات محددة (${selectedImagesCount} صورة)`
-                : `modèles (${selectedImagesCount} photos)`}
+                ? `${selectedProducts.length} محدد (${selectedImagesCount} صورة)`
+                : `${selectedProducts.length} sélect. (${selectedImagesCount} photos)`}
             </span>
           </div>
 
           {/* Action Buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             <button
               type="button"
               onClick={handleSelectAll}
               className="btn btn-outline"
               style={{
-                padding: '0.35rem 0.75rem',
-                fontSize: '0.8rem',
+                padding: '0.35rem 0.65rem',
+                fontSize: '0.78rem',
                 fontWeight: 700,
                 borderRadius: 'var(--radius-full)',
               }}
             >
               {selectedProductIds.size === allProducts.length
-                ? (isArabic ? 'إلغاء الكل' : 'Désélectionner')
-                : (isArabic ? 'تحديد الكل' : 'Tout sélectionner')}
+                ? (isArabic ? 'إلغاء الكل' : 'Désélect.')
+                : (isArabic ? 'تحديد الكل' : 'Tout sélect.')}
             </button>
 
             <button
@@ -574,21 +552,21 @@ export default function CatalogClientView({
               disabled={selectedProducts.length === 0}
               className="btn btn-primary hover-lift"
               style={{
-                padding: '0.45rem 1.15rem',
-                fontSize: '0.85rem',
+                padding: '0.4rem 0.95rem',
+                fontSize: '0.82rem',
                 fontWeight: 800,
                 borderRadius: 'var(--radius-full)',
                 opacity: selectedProducts.length === 0 ? 0.5 : 1,
                 cursor: selectedProducts.length === 0 ? 'not-allowed' : 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.35rem',
+                gap: '0.3rem',
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: '1.15rem' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '1.1rem' }}>
                 download
               </span>
-              <span>{isArabic ? 'تحميل (ZIP)' : 'Télécharger (ZIP)'}</span>
+              <span>{dict?.catalog?.downloadSelection || (isArabic ? 'تحميل' : 'Télécharger')}</span>
             </button>
 
             <button
@@ -601,14 +579,15 @@ export default function CatalogClientView({
                 background: 'rgba(100, 116, 139, 0.15)',
                 border: 'none',
                 borderRadius: '50%',
-                width: '32px',
-                height: '32px',
+                width: '30px',
+                height: '30px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
                 color: 'var(--text-muted)',
-                fontSize: '1rem',
+                fontSize: '0.9rem',
+                flexShrink: 0,
               }}
               title={isArabic ? 'إغلاق وضع التحديد' : 'Fermer le mode sélection'}
             >

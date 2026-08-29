@@ -15,13 +15,13 @@
     "viewAll": "Voir tout",
     "viewDetails": "Voir détails",
     "noProducts": "Aucun produit dans ce catalogue pour le moment.",
-    "downloadAll": "Télécharger tout (ZIP)",
-    "downloadSelection": "Télécharger la sélection (ZIP)",
+    "downloadAll": "Télécharger les photos",
+    "downloadSelection": "Télécharger la sélection",
     "selectModels": "Sélectionner",
     "exitSelection": "Quitter sélection",
     "selectAll": "Tout sélectionner",
     "deselectAll": "Désélectionner",
-    "downloadFamily": "Télécharger (ZIP)"
+    "downloadFamily": "Télécharger"
   },
   "family": {
     "in": "dans",

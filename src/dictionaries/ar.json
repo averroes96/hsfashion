@@ -15,13 +15,13 @@
     "viewAll": "عرض الكل",
     "viewDetails": "عرض التفاصيل",
     "noProducts": "لا توجد منتجات في هذا الكتالوج بعد.",
-    "downloadAll": "تحميل كل الصور (ZIP)",
-    "downloadSelection": "تحميل الصور المحددة (ZIP)",
+    "downloadAll": "تحميل كل الصور",
+    "downloadSelection": "تحميل الصور المحددة",
     "selectModels": "تحديد موديلات",
     "exitSelection": "إلغاء التحديد",
     "selectAll": "تحديد الكل",
     "deselectAll": "إلغاء الكل",
-    "downloadFamily": "تحميل الفئة (ZIP)"
+    "downloadFamily": "تحميل الصور"
   },
   "family": {
     "in": "في",
