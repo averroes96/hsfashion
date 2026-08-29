@@ -21,9 +21,30 @@ export default function PublicHeader({ lang, dict }: PublicHeaderProps) {
         }}
       >
         {/* Logo */}
-        <Link href={`/${lang}`} className="logo">
-          <span style={{ color: 'var(--primary)', fontSize: '2rem' }}>•</span>
-          <span>HS Fashion</span>
+        <Link
+          href={`/${lang}`}
+          className="logo"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.6rem',
+            textDecoration: 'none',
+          }}
+        >
+          <img
+            src="/logo.png"
+            alt="H.S.Fashion Logo"
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '8px',
+              objectFit: 'cover',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+            }}
+          />
+          <span style={{ fontWeight: 800, fontSize: '1.2rem', color: 'var(--text-main)', letterSpacing: '0.02em' }}>
+            H.S.Fashion
+          </span>
         </Link>
 
         {/* Search, Cart & Language Controls */}
